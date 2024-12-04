@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Guitar Tuner</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #1e1e2f;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .tuner-container {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 500px;
+            background-image: url('./Headstock.png'); /* Replace with your image file name */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .dial {
+            position: absolute;
+            width: 10px;
+            height: 120px;
+            background: linear-gradient(to bottom, #007BFF, #0056b3);
+            transform-origin: center bottom;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 5px;
+            transition: transform 0.1s ease-out, background-color 0.1s ease-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .center-line {
+            position: absolute;
+            width: 2px;
+            height: 130px;
+            background-color: #00FF00;
+            transform: translateX(-50%);
+        }
+
+        .note-display {
+            margin-top: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #FF4500;
+        }
+
+        .start-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .start-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>Digital Guitar Tuner</header>
+    <button id="startButton" class="start-button">Start Tuner</button>
+    <div id="tuner" class="tuner-container" style="display: none;">
+        <div id="centerLine" class="center-line"></div>
+        <div id="dial" class="dial"></div>
+    </div>
+    <div id="note" class="note-display">-</div>
+    <div id="status" class="status">No sound detected</div>
+    <script src="script.js"></script>
+</body>
+</html>
