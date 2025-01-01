@@ -1,3 +1,4 @@
+/* Root Variables and Reset */
 :root {
     --primary: #60a5fa;
     --accent: #818cf8;
@@ -8,6 +9,7 @@
     --space-darker: #020617;
     --text-primary: #ffffff;
     --text-secondary: #94a3b8;
+    
 }
 
 * {
@@ -16,6 +18,7 @@
     box-sizing: border-box;
 }
 
+/* Base Styles */
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(180deg, var(--space-dark) 0%, var(--space-darker) 100%);
@@ -26,9 +29,11 @@ body {
     align-items: center;
     padding: 2rem;
     position: relative;
-    overflow-x: hidden;
+    overflow: hidden;
+
 }
 
+/* Star Background Effect */
 .stars {
     position: fixed;
     top: 0;
@@ -39,7 +44,7 @@ body {
     z-index: 0;
 }
 
-.stars::before {
+.stars::before, .stars::after {
     content: "";
     position: absolute;
     width: 200%;
@@ -49,9 +54,15 @@ body {
     background-image: 
         radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0));
+        radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 130px 80px, #ffffff, rgba(0,0,0,0));
     background-size: 200px 200px;
     animation: stars-scroll 100s linear infinite;
+}
+
+.stars::after {
+    animation-delay: -50s;
 }
 
 @keyframes stars-scroll {
@@ -59,36 +70,72 @@ body {
     100% { transform: translateY(50%); }
 }
 
-.brand-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.5rem;
-    margin: 1rem 0 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    -webkit-background-clip: text;
-    color: transparent;
-    z-index: 1;
-}
-
-.container {
-    width: 90%;
-    max-width: 500px;
-    background: linear-gradient(160deg, rgba(30, 41, 59, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+/* Mission Header */
+.mission-header {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin-bottom: 2rem;
     position: relative;
     z-index: 2;
 }
 
-.header {
+.transmission-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    color: var(--warning);
+    animation: blink 2s infinite;
+}
+
+.brand-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 10px rgba(96, 165, 250, 0.2);
+}
+
+.brand-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+.mission-time {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Main Container */
+.container {
+    scale: 70%;
+    width: 100%;
+    max-width: 600px;
+    background: linear-gradient(160deg, rgba(30, 41, 59, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    position: absolute;
+    z-index: 2;
+}
+
+/* Control Panel */
+.control-panel {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .mission-status {
@@ -105,7 +152,7 @@ body {
     animation: pulse 2s infinite;
 }
 
-.start-button {
+.control-button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -116,20 +163,27 @@ body {
     border-radius: 9999px;
     cursor: pointer;
     font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
     transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.start-button:hover {
+.control-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
+.control-button.active {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+}
+
+/* Tuner Display */
 .tuner-display {
-    height: 100px;
+    position: relative;
+    height: 200px;
     background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
     border-radius: 1rem;
-    margin-bottom: 1rem;
-    position: relative;
+    margin-bottom: 1.5rem;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -139,8 +193,8 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 1px;
-    height: 70%;
+    width: 2px;
+    height: 80%;
     background: rgba(255, 255, 255, 0.1);
 }
 
@@ -149,13 +203,15 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 3px;
-    height: 70%;
+    width: 4px;
+    height: 90%;
     background: var(--primary);
     transition: all 0.2s ease-out;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
 }
 
-.volume-indicator {
+/* Signal Monitor */
+.signal-monitor {
     position: absolute;
     bottom: 1rem;
     left: 1rem;
@@ -164,7 +220,7 @@ body {
     gap: 0.5rem;
 }
 
-.volume-bar {
+.signal-bar {
     width: 100px;
     height: 4px;
     background: rgba(255, 255, 255, 0.1);
@@ -172,19 +228,37 @@ body {
     overflow: hidden;
 }
 
-.volume-level {
+.signal-level {
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, var(--primary), var(--accent));
     transition: width 0.2s ease-out;
 }
 
-.note-display {
-    text-align: center;
-    margin-bottom: 1rem;
+/* Telemetry Grid */
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.note-value {
+.telemetry-box {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.telemetry-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.telemetry-value {
     font-family: 'Orbitron', sans-serif;
     font-size: 2rem;
     font-weight: 700;
@@ -193,45 +267,480 @@ body {
     color: transparent;
 }
 
-.string-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+/* Booster Array */
+.booster-array {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
 }
 
+.booster-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.booster-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    position: relative;
+}
+
+/* Booster Design */
 .string-item {
     aspect-ratio: 1;
     background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
     border-radius: 50%;
+    position: relative;
+    padding: 1rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 600;
-    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 2px 5px rgba(255, 255, 255, 0.1);
+}
+
+.string-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, 
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%);
+    pointer-events: none;
+}
+
+.string-item::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 40%;
+    filter: blur(8px);
+    opacity: 0;
     transition: all 0.3s ease;
 }
 
 .string-item.in-tune {
     background: linear-gradient(145deg, var(--success) 0%, #16a34a 100%);
-    color: white;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+    box-shadow: 
+        0 8px 24px rgba(34, 197, 94, 0.3),
+        0 0 0 2px rgba(34, 197, 94, 0.5);
 }
 
+.string-item.in-tune::after {
+    opacity: 1;
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        var(--warning) 0deg,
+        #f59e0b 180deg,
+        var(--warning) 360deg
+    );
+    height: 60%;
+    animation: thrusterGlow 1s ease-in-out infinite alternate;
+}
+
+/* Launch Platform */
+.launch-platform {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(0deg, #1a1a1a 0%, transparent 100%);
+    z-index: 1;
+}
+
+.platform-lights {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding-top: 1rem;
+}
+
+.platform-light {
+    width: 8px;
+    height: 8px;
+    background: var(--warning);
+    border-radius: 50%;
+    animation: warning-blink 1s infinite alternate;
+}
+
+/* Animations */
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.5); opacity: 0.5; }
     100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes warning-blink {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes thrusterGlow {
+    0% { opacity: 0.6; height: 60%; }
+    100% { opacity: 1; height: 70%; }
+}
+
+/* Responsive Design */
 @media (max-width: 640px) {
     .container {
-        width: 95%;
         padding: 1rem;
     }
-    
+
+    .booster-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .brand-title {
         font-size: 2rem;
     }
+}
+
+/* Space Background */
+.space-background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a3a 0%, #000 100%);
+    z-index: 0;
+    overflow: hidden;
+}
+
+/* Launch Complex */
+.launch-complex {
+
+    position: fixed;
+    left: 18%;
+    bottom: 200px;  /* Adjusted to sit on platform */
+    transform: translateX(-50%);
+    width: 300px;
+    z-index: 2;
+    transition: all 8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.launch-complex svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Tower Lines Animation */
+.tower-line {
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { fill: #555; }
+    to { fill: #666; }
+}
+
+/* Launch Clamps */
+.launch-clamp {
+    transition: transform 0.5s ease;
+}
+
+.launching .launch-clamp.left {
+    transform: translate(-20px, 0) rotate(-20deg);
+}
+
+.launching .launch-clamp.right {
+    transform: translate(20px, 0) rotate(20deg);
+}
+
+/* Guitar Rocket */
+.guitar-rocket {
+    position: fixed;
+    left: 18%;
+    bottom: 200px;  /* Adjusted to sit on platform */
+    transform: translateX(-50%);
+    width: 300px;
+    z-index: 2;
+    transition: all 8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.guitar-rocket.launching {
+    transform: translate(-50%, -200vh) rotate3d(1, 0, 1, 10deg);
+}
+
+.guitar-base {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(255,69,0,0));
+    transition: filter 1s ease;
+}
+
+/* Rocket Body Elements */
+.rocket-body {
+    transition: all 0.3s ease;
+}
+
+.launching .rocket-body {
+    filter: brightness(1.2);
+}
+
+.fin {
+    transition: transform 0.3s ease;
+}
+
+.launching .fin.left {
+    transform: rotate(-5deg);
+}
+
+.launching .fin.right {
+    transform: rotate(5deg);
+}
+
+/* Flame Effects */
+.thrust-flame {
+    opacity: 0;
+    transform-origin: 50% 0%;
+    transition: opacity 0.3s ease;
+}
+
+.thrust-flame.active {
+    opacity: 1;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0%, 100% {
+        transform: scaleY(0.9) scaleX(0.95);
+        opacity: 0.9;
+        filter: brightness(0.8) blur(2px);
+    }
+    50% {
+        transform: scaleY(1.2) scaleX(1.05);
+        opacity: 1;
+        filter: brightness(1.2) blur(1px);
+    }
+}
+
+/* Launch Button */
+.launch-button {
+    position: fixed;
+    bottom: 20px;
+    left: 18%;
+    transform: translateX(-50%);
+    padding: 15px 30px;
+    font-size: 18px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+}
+
+.launch-button:hover {
+    background: #ff6666;
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+}
+
+.launch-button:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+/* Stars Background */
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, transparent 0%, #000 100%);
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+/* Add these to your existing CSS file */
+
+/* Booster Styles */
+.booster circle {
+    filter: drop-shadow(0 0 5px rgba(100,100,100,0.5));
+    transition: all 0.3s ease;
+}
+
+.booster-nozzles circle {
+    filter: drop-shadow(0 0 3px rgba(50,50,50,0.5));
+}
+
+/* Pre-launch Smoke Animation */
+.smoke-effects circle {
+    mix-blend-mode: screen;
+    filter: blur(5px);
+    animation: enhancedSmoke 4s infinite;
+}
+
+@keyframes enhancedSmoke {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(1);
+        filter: blur(5px);
+    }
+    20% {
+        opacity: 0.8;
+        transform: translateY(-15px) scale(1.5);
+        filter: blur(8px);
+    }
+    40% {
+        opacity: 0.6;
+        transform: translateY(-25px) scale(2);
+        filter: blur(12px);
+    }
+    80% {
+        opacity: 0.3;
+        transform: translateY(-35px) scale(2.5) rotate(5deg);
+        filter: blur(15px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-45px) scale(3) rotate(8deg);
+        filter: blur(20px);
+    }
+}
+
+/* Stagger smoke animations with more natural timing */
+.smoke-1 { animation-delay: 0s; }
+.smoke-2 { animation-delay: 0.7s; }
+.smoke-3 { animation-delay: 1.4s; }
+.smoke-4 { animation-delay: 0.3s; }
+.smoke-5 { animation-delay: 1s; }
+.smoke-6 { animation-delay: 1.7s; }
+
+/* Add turbulence to smoke */
+.smoke-effects circle:nth-child(odd) {
+    animation-duration: 4.5s;
+    animation-timing-function: ease-out;
+}
+
+.smoke-effects circle:nth-child(even) {
+    animation-duration: 3.8s;
+    animation-timing-function: ease-in-out;
+}
+/* Guitar Details */
+.guitar-details .strings line {
+    animation: stringVibration 0.5s infinite alternate;
+    transform-origin: center top;
+}
+
+@keyframes stringVibration {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(1.02); }
+}
+
+/* Launching State Enhancements */
+.launching .booster circle {
+    filter: drop-shadow(0 0 10px rgba(255,69,0,0.8));
+}
+
+.launching .smoke-effects circle {
+    animation-duration: 1.5s;
+    animation-timing-function: ease-out;
+}
+
+/* Sound Hole Glow Effect */
+.guitar-details circle {
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+    transition: all 0.3s ease;
+}
+
+.launching .guitar-details circle {
+    filter: drop-shadow(0 0 15px rgba(255,69,0,0.3));
+}
+/* Enhanced Launch Platform Styles */
+.launch-complex {
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+}
+
+/* Tower Lights Animation */
+.tower-light {
+    animation: blinkLight 2s infinite;
+}
+
+@keyframes blinkLight {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Stagger tower light blinking */
+.tower-light:nth-child(2) {
+    animation-delay: 0.6s;
+}
+.tower-light:nth-child(3) {
+    animation-delay: 1.2s;
+}
+
+/* Service Arms */
+.left-tower path, .right-tower path {
+    transition: transform 1s ease;
+}
+
+.launching .left-tower path {
+    transform: translateX(-50px) rotate(-20deg);
+    transform-origin: right;
+}
+
+.launching .right-tower path {
+    transform: translateX(50px) rotate(20deg);
+    transform-origin: left;
+}
+
+/* Water Deluge System */
+.water-deluge .nozzle {
+    transition: all 0.3s ease;
+}
+
+.launching .water-deluge .nozzle {
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
+}
+
+/* Platform Vibration During Launch */
+@keyframes platformVibration {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+.launching .launch-complex {
+    animation: platformVibration 0.05s infinite;
+}
+
+/* Flame Deflector Glow */
+.launching .launch-mount path {
+    filter: drop-shadow(0 0 10px rgba(255,69,0,0.6));
+}
+
+/* Platform Grating Detail */
+.platform-grating rect {
+    transition: filter 0.3s ease;
+}
+
+.launching .platform-grating rect {
+    filter: brightness(1.2);
 }
