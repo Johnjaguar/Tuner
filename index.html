@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RocketGuitar - Professional Digital Guitar Tuner">
+    <title>RocketGuitar Tuner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="tuner.css">
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <h1 class="brand-title">
+        <span class="rocket-icon">🚀</span>
+        RocketGuitar
+    </h1>
+    
+    <div class="container">
+        <div class="header">
+            <div class="mission-status">
+                <div class="status-light"></div>
+                <span id="missionStatus">READY FOR LAUNCH</span>
+            </div>
+            <button id="startButton" class="start-button">
+                <i data-lucide="power"></i>
+                <span>START TUNER</span>
+            </button>
+        </div>
+
+        <div class="tuner-display">
+            <div class="center-line"></div>
+            <div id="marker" class="marker"></div>
+            <div class="volume-indicator">
+                <i data-lucide="activity"></i>
+                <div class="volume-bar">
+                    <div id="volumeLevel" class="volume-level"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-display">
+            <div class="note-box">
+                <div id="currentNote" class="note-value">-</div>
+            </div>
+        </div>
+
+        <div class="string-grid" id="stringGrid"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
