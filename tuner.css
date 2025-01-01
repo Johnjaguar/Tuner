@@ -29,8 +29,7 @@ body {
     align-items: center;
     padding: 2rem;
     position: relative;
-    overflow: hidden;
-
+    overflow-x: hidden;
 }
 
 /* Star Background Effect */
@@ -75,7 +74,7 @@ body {
     width: 100%;
     max-width: 600px;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;  /* Change this from 2rem to 1rem */
     position: relative;
     z-index: 2;
 }
@@ -116,17 +115,17 @@ body {
 
 /* Main Container */
 .container {
-    scale: 70%;
+    scale: 70%;  /* Change this from 70% to 85% */
     width: 100%;
     max-width: 600px;
     background: linear-gradient(160deg, rgba(30, 41, 59, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
     border-radius: 1.5rem;
-    padding: 2rem;
+    padding: 1.5rem;  /* Change this from 2rem to 1.5rem */
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
-    position: absolute;
+    position: relative;
     z-index: 2;
 }
 
@@ -344,17 +343,6 @@ body {
         0 0 0 2px rgba(34, 197, 94, 0.5);
 }
 
-.string-item.in-tune::after {
-    opacity: 1;
-    background: conic-gradient(
-        from 180deg at 50% 50%,
-        var(--warning) 0deg,
-        #f59e0b 180deg,
-        var(--warning) 360deg
-    );
-    height: 60%;
-    animation: thrusterGlow 1s ease-in-out infinite alternate;
-}
 
 /* Launch Platform */
 .launch-platform {
@@ -743,4 +731,8 @@ body {
 
 .launching .platform-grating rect {
     filter: brightness(1.2);
+}
+
+.main-title{
+    
 }
