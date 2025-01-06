@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const stringGrid = document.getElementById('stringGrid');
     const missionStatus = document.getElementById('missionStatus');
     const missionTime = document.getElementById('missionTime');
-
+const missionTimer = document.getElementById('mission-timer');
     // State variables
     let isRunning = false;
     let audioContext = null;
@@ -47,12 +47,130 @@ document.addEventListener("DOMContentLoaded", () => {
             stringItem.innerHTML = `
                 <div class="string-note">${note}</div>
                 <div class="string-freq">${freq} Hz</div>
-                <div class="thruster-effect"></div>
             `;
             stringGrid.appendChild(stringItem);
         });
     }
-
+    function activateBooster(note) {
+        const stringElement = document.getElementById(`string-${note}`);
+        if (stringElement) {
+            stringElement.classList.add('in-tune');
+            
+            const boosterMap = {
+                'E4': 1,
+                'B3': 2,
+                'G3': 3,
+                'D3': 4,
+                'A2': 5,
+                'E2': 6
+            };
+            
+            const boosterNum = boosterMap[note];
+            if (boosterNum) {
+                const booster = document.querySelector(`.booster-${boosterNum}`);
+                const nozzle = document.querySelector(`.nozzle-${boosterNum}`);
+                
+                if (booster && nozzle) {
+                    // Enhance booster appearance
+                    booster.style.fill = '#ffd700';
+                    booster.style.filter = 'drop-shadow(0 0 10px rgba(255,215,0,0.7))';
+                    nozzle.style.fill = '#ff4500';
+                    nozzle.style.filter = 'drop-shadow(0 0 5px rgba(255,69,0,0.8))';
+                    
+                    // Create enhanced flame effect
+                    if (!document.querySelector(`.flame-group-${boosterNum}`)) {
+                        const flameGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        flameGroup.setAttribute('class', `flame-group flame-group-${boosterNum}`);
+                        
+                        // Base flame
+                        const baseFlame = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        baseFlame.setAttribute('class', 'base-flame');
+                        baseFlame.setAttribute('fill', 'url(#coreFlame)');
+                        
+                        // Inner flame
+                        const innerFlame = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        innerFlame.setAttribute('class', 'inner-flame');
+                        innerFlame.setAttribute('fill', 'white');
+                        
+                        // Outer flame
+                        const outerFlame = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        outerFlame.setAttribute('class', 'outer-flame');
+                        outerFlame.setAttribute('fill', 'url(#outerFlame)');
+                        
+                        // Calculate flame paths based on nozzle position
+                        const nozzleX = nozzle.cx.baseVal.value;
+                        const nozzleY = nozzle.cy.baseVal.value;
+                        const flameHeight = 30;
+                        const flameWidth = 15;
+                        
+                        // Set flame paths
+                        baseFlame.setAttribute('d', `
+                            M${nozzleX - flameWidth/2} ${nozzleY}
+                            Q${nozzleX} ${nozzleY + flameHeight * 0.7}
+                            ${nozzleX} ${nozzleY + flameHeight}
+                            Q${nozzleX} ${nozzleY + flameHeight * 0.7}
+                            ${nozzleX + flameWidth/2} ${nozzleY}
+                        `);
+                        
+                        innerFlame.setAttribute('d', `
+                            M${nozzleX - flameWidth/3} ${nozzleY + 5}
+                            Q${nozzleX} ${nozzleY + flameHeight * 0.6}
+                            ${nozzleX} ${nozzleY + flameHeight * 0.8}
+                            Q${nozzleX} ${nozzleY + flameHeight * 0.6}
+                            ${nozzleX + flameWidth/3} ${nozzleY + 5}
+                        `);
+                        
+                        outerFlame.setAttribute('d', `
+                            M${nozzleX - flameWidth} ${nozzleY}
+                            Q${nozzleX} ${nozzleY + flameHeight}
+                            ${nozzleX} ${nozzleY + flameHeight * 1.2}
+                            Q${nozzleX} ${nozzleY + flameHeight}
+                            ${nozzleX + flameWidth} ${nozzleY}
+                        `);
+                        
+                        // Add sparks
+                        const sparkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        sparkGroup.setAttribute('class', 'sparks');
+                        
+                        for (let i = 0; i < 4; i++) {
+                            const spark = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            spark.setAttribute('class', 'spark');
+                            spark.setAttribute('r', '1');
+                            spark.setAttribute('fill', 'white');
+                            spark.style.setProperty('--spark-x', `${(Math.random() * 10 - 5)}px`);
+                            sparkGroup.appendChild(spark);
+                        }
+                        
+                        // Assemble flame group
+                        flameGroup.appendChild(outerFlame);
+                        flameGroup.appendChild(baseFlame);
+                        flameGroup.appendChild(innerFlame);
+                        flameGroup.appendChild(sparkGroup);
+                        
+                        // Add to engine section
+                        const engineSection = document.querySelector('.engine-section');
+                        engineSection.appendChild(flameGroup);
+                        
+                        // Set position and rotation based on booster number
+                        const angle = getBoosterAngle(boosterNum);
+                        flameGroup.style.transform = `rotate(${angle}deg) translateY(15px)`;
+                    }
+                }
+            }
+        }
+    }
+    
+    function getBoosterAngle(boosterNum) {
+        const angles = {
+            1: -30,
+            2: -20,
+            3: -10,
+            4: 30,
+            5: 20,
+            6: 10
+        };
+        return angles[boosterNum] || 0;
+    }
     function startMissionClock() {
         setInterval(() => {
             if (missionStartTime) {
@@ -266,28 +384,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function updateTunerVisualization(cents, note) {
-        const maxCents = 50;
-        const position = 50 + (cents * 50) / maxCents;
-        marker.style.left = `${Math.min(100, Math.max(0, position))}%`;
+    const maxCents = 50;
+    const position = 50 + (cents * 50) / maxCents;
+    marker.style.left = `${Math.min(100, Math.max(0, position))}%`;
 
-        const stringElement = document.getElementById(`string-${note}`);
+    const stringElement = document.getElementById(`string-${note}`);
 
-        if (Math.abs(cents) < 5) {
-            status.textContent = 'BOOSTER ALIGNED 🚀';
-            marker.style.backgroundColor = 'var(--success)';
-            
-            if (stringElement && !stringElement.classList.contains('in-tune')) {
-                stringElement.classList.add('in-tune');
-                activateThruster(stringElement);
-                checkAllBoosters();
-            }
-        } else {
-            const direction = cents > 0 ? 'TUNE DOWN ↓' : 'TUNE UP ↑';
-            status.textContent = `${direction} (${Math.abs(cents).toFixed(1)} cents)`;
-            marker.style.backgroundColor = 'var(--primary)';
+    if (Math.abs(cents) < 5) {
+        status.textContent = 'BOOSTER ALIGNED 🚀';
+        marker.style.backgroundColor = 'var(--success)';
+        
+        if (stringElement && !stringElement.classList.contains('in-tune')) {
+            activateBooster(note);
+            checkAllBoosters();
         }
+    } else {
+        const direction = cents > 0 ? 'TUNE DOWN ↓' : 'TUNE UP ↑';
+        status.textContent = `${direction} (${Math.abs(cents).toFixed(1)} cents)`;
+        marker.style.backgroundColor = 'var(--primary)';
     }
-
+}
     function activateThruster(element) {
         element.querySelector('.thruster-effect').style.opacity = '1';
     }
