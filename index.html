@@ -162,6 +162,48 @@
                     <stop offset="40%" stop-color="#ffdd99" />
                     <stop offset="100%" stop-color="#ff6600" />
                 </radialGradient>
+
+                <!-- Add new modern patterns and effects -->
+                <!-- Modern Carbon Fiber Pattern -->
+                <pattern id="carbonFiber" patternUnits="userSpaceOnUse" width="20" height="20">
+                    <rect width="20" height="20" fill="#1a1a1a"/>
+                    <path d="M0 0h20v20H0z" fill="none" stroke="#2a2a2a" stroke-width="0.5"/>
+                    <circle cx="10" cy="10" r="8" fill="none" stroke="#333" stroke-width="0.3"/>
+                    <circle cx="10" cy="10" r="4" fill="none" stroke="#333" stroke-width="0.2"/>
+                </pattern>
+
+                <!-- Enhanced Metal Texture -->
+                <linearGradient id="brushedMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#444"/>
+                    <stop offset="45%" stop-color="#666"/>
+                    <stop offset="55%" stop-color="#888"/>
+                    <stop offset="100%" stop-color="#555"/>
+                </linearGradient>
+
+                <!-- Modern Chrome Effect -->
+                <linearGradient id="chromeEffect" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="45%" stop-color="#f0f0f0"/>
+                    <stop offset="55%" stop-color="#d0d0d0"/>
+                    <stop offset="100%" stop-color="#a0a0a0"/>
+                </linearGradient>
+
+                <!-- Titanium Finish -->
+                <linearGradient id="titaniumFinish" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2c3e50"/>
+                    <stop offset="50%" stop-color="#34495e"/>
+                    <stop offset="100%" stop-color="#2c3e50"/>
+                </linearGradient>
+
+                <!-- Enhanced Flame Effects -->
+                <radialGradient id="modernFlame" cx="0.5" cy="0.2" r="0.8">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="20%" stop-color="#fff7e6"/>
+                    <stop offset="40%" stop-color="#ffdd99"/>
+                    <stop offset="60%" stop-color="#ff9933"/>
+                    <stop offset="80%" stop-color="#ff5500"/>
+                    <stop offset="100%" stop-color="#ff3300"/>
+                </radialGradient>
             </defs>
 
             <!-- Enhanced Rocket Body -->
@@ -203,28 +245,44 @@
 
                 <!-- Engine Section -->
                 <g class="engine-section">
-                    <!-- Left Boosters -->
-                    <g class="booster left-boosters">
-                        <circle cx="160" cy="625" r="15" fill="#444" class="booster-1"/>
-                        <circle cx="175" cy="650" r="15" fill="#444" class="booster-2"/>
-                        <circle cx="190" cy="675" r="15" fill="#444" class="booster-3"/>
+                    <!-- Heat Shield -->
+                    <path d="M150 600 Q200 620 250 600" fill="url(#titaniumFinish)" class="heat-shield"/>
+                    
+                    <!-- Enhanced Engine Clusters -->
+                    <g class="engine-clusters">
+                        <!-- Left Cluster -->
+                        <g class="left-cluster">
+                            <path d="M160 625 L155 645 Q160 650 165 645 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            <path d="M175 650 L170 670 Q175 675 180 670 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            <path d="M190 675 L185 695 Q190 700 195 695 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            
+                            <!-- Cooling System Details -->
+                            <path d="M158 625 Q160 635 162 625" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                            <path d="M173 650 Q175 660 177 650" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                            <path d="M188 675 Q190 685 192 675" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                        </g>
+
+                        <!-- Right Cluster (mirror of left) -->
+                        <g class="right-cluster">
+                            <path d="M240 625 L245 645 Q240 650 235 645 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            <path d="M225 650 L230 670 Q225 675 220 670 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            <path d="M210 675 L215 695 Q210 700 205 695 Z" fill="url(#brushedMetal)" class="nozzle"/>
+                            
+                            <!-- Cooling System Details -->
+                            <path d="M242 625 Q240 635 238 625" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                            <path d="M227 650 Q225 660 223 650" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                            <path d="M212 675 Q210 685 208 675" fill="none" stroke="url(#chromeEffect)" stroke-width="1" class="cooling-line"/>
+                        </g>
                     </g>
-                    <!-- Right Boosters -->
-                    <g class="booster right-boosters">
-                        <circle cx="240" cy="625" r="15" fill="#444" class="booster-4"/>
-                        <circle cx="225" cy="650" r="15" fill="#444" class="booster-5"/>
-                        <circle cx="210" cy="675" r="15" fill="#444" class="booster-6"/>
-                    </g>
-                    <!-- Booster Nozzles -->
-                    <g class="booster-nozzles">
-                        <!-- Left Nozzles -->
-                        <circle cx="160" cy="640" r="5" fill="#333" class="nozzle-1"/>
-                        <circle cx="175" cy="665" r="5" fill="#333" class="nozzle-2"/>
-                        <circle cx="190" cy="690" r="5" fill="#333" class="nozzle-3"/>
-                        <!-- Right Nozzles -->
-                        <circle cx="240" cy="640" r="5" fill="#333" class="nozzle-4"/>
-                        <circle cx="225" cy="665" r="5" fill="#333" class="nozzle-5"/>
-                        <circle cx="210" cy="690" r="5" fill="#333" class="nozzle-6"/>
+
+                    <!-- Thrust Vectoring Mechanisms -->
+                    <g class="thrust-vectoring">
+                        <circle cx="160" cy="625" r="3" fill="url(#chromeEffect)" class="gimbal"/>
+                        <circle cx="175" cy="650" r="3" fill="url(#chromeEffect)" class="gimbal"/>
+                        <circle cx="190" cy="675" r="3" fill="url(#chromeEffect)" class="gimbal"/>
+                        <circle cx="240" cy="625" r="3" fill="url(#chromeEffect)" class="gimbal"/>
+                        <circle cx="225" cy="650" r="3" fill="url(#chromeEffect)" class="gimbal"/>
+                        <circle cx="210" cy="675" r="3" fill="url(#chromeEffect)" class="gimbal"/>
                     </g>
                 </g>
 
@@ -249,67 +307,113 @@
 
     <!-- Enhanced Launch Complex -->
     <div class="launch-complex">
-        <svg viewBox="0 0 1000 400">
-            <!-- Main Platform Base -->
-            <rect x="150" y="300" width="700" height="100" fill="#2a2a2a" stroke="#333"/>
+        <svg viewBox="0 0 1000 600">
+            <!-- Definitions for gradients and patterns -->
+            <defs>
+                <!-- Metal texture for structures -->
+                <linearGradient id="metalTexture" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4a4a4a"/>
+                    <stop offset="50%" style="stop-color:#3a3a3a"/>
+                    <stop offset="100%" style="stop-color:#2a2a2a"/>
+                </linearGradient>
+                
+                <!-- Grating pattern for platforms -->
+                <pattern id="gratingPattern" patternUnits="userSpaceOnUse" width="8" height="8">
+                    <rect width="8" height="8" fill="#333"/>
+                    <path d="M0 4 H8 M4 0 V8" stroke="#444" stroke-width="1"/>
+                </pattern>
+
+                <!-- Concrete texture -->
+                <pattern id="concreteTexture" patternUnits="userSpaceOnUse" width="50" height="50">
+                    <rect width="50" height="50" fill="#2a2a2a"/>
+                    <circle cx="25" cy="25" r="15" fill="#252525"/>
+                    <circle cx="0" cy="0" r="15" fill="#252525"/>
+                    <circle cx="50" cy="50" r="15" fill="#252525"/>
+                </pattern>
+            </defs>
+
+            <!-- Main Launch Pad Base -->
+            <path d="M100 500 H900 L950 600 H50 Z" fill="url(#concreteTexture)"/>
             
-            <!-- Platform Details -->
-            <g class="platform-details">
-                <!-- Support Structure -->
-                <path d="M150 400 L50 600 M850 400 L950 600" stroke="#333" stroke-width="4"/>
-                <path d="M200 400 L150 550 M800 400 L850 550" stroke="#333" stroke-width="4"/>
+            <!-- Flame Trench -->
+            <path d="M400 500 Q500 600 600 500" fill="#1a1a1a" stroke="#222"/>
+            <path d="M380 520 Q500 650 620 520" fill="none" stroke="#333" stroke-width="2"/>
+            
+            <!-- Water Deluge System -->
+            <g class="deluge-system">
+                <rect x="380" y="510" width="240" height="4" fill="#666"/>
+                <circle cx="400" cy="512" r="1" fill="#888" class="nozzle"/>
+                <circle cx="450" cy="512" r="1" fill="#888" class="nozzle"/>
+                <circle cx="500" cy="512" r="1" fill="#888" class="nozzle"/>
+                <circle cx="550" cy="512" r="1" fill="#888" class="nozzle"/>
+                <circle cx="600" cy="512" r="1" fill="#888" class="nozzle"/>
+            </g>
+
+            <!-- Main Service Tower -->
+            <g class="service-tower">
+                <!-- Tower Base -->
+                <rect x="650" y="100" width="80" height="400" fill="url(#metalTexture)"/>
                 
-                <!-- Platform Grating -->
-                <g class="platform-grating">
-                    <pattern id="grating" patternUnits="userSpaceOnUse" width="20" height="20">
-                        <rect width="20" height="20" fill="#2a2a2a"/>
-                        <path d="M0 10 H20 M10 0 V20" stroke="#444" stroke-width="2"/>
-                    </pattern>
-                    <rect x="200" y="320" width="600" height="30" fill="url(#grating)"/>
+                <!-- Tower Internal Structure -->
+                <g class="tower-lattice" stroke="#444" stroke-width="2">
+                    <path d="M660 120 L720 140 M660 180 L720 200 M660 240 L720 260" />
+                    <path d="M660 300 L720 320 M660 360 L720 380 M660 420 L720 440" />
                 </g>
-                
-                <!-- Service Towers -->
-                <g class="left-tower">
-                    <rect x="200" y="50" width="60" height="250" fill="#3a3a3a"/>
-                    <rect x="210" y="60" width="40" height="230" fill="#444"/>
-                    <rect x="220" y="70" width="20" height="210" fill="#333"/>
-                    <path d="M260 100 H350" stroke="#555" stroke-width="8"/>
-                    <path d="M260 180 H350" stroke="#555" stroke-width="8"/>
-                    <circle cx="230" cy="80" r="5" fill="red" class="tower-light"/>
-                    <circle cx="230" cy="150" r="5" fill="red" class="tower-light"/>
-                    <circle cx="230" cy="220" r="5" fill="red" class="tower-light"/>
+
+                <!-- Service Arms -->
+                <g class="service-arms">
+                    <!-- Lower Arm -->
+                    <g class="service-arm" transform="translate(650, 350)">
+                        <rect width="200" height="20" fill="url(#gratingPattern)"/>
+                        <path d="M0 0 L-30 30 M200 0 L230 30" stroke="#555" stroke-width="4"/>
+                    </g>
+                    
+                    <!-- Upper Arm -->
+                    <g class="service-arm" transform="translate(650, 250)">
+                        <rect width="180" height="20" fill="url(#gratingPattern)"/>
+                        <path d="M0 0 L-25 25 M180 0 L205 25" stroke="#555" stroke-width="4"/>
+                    </g>
                 </g>
-                
-                <g class="right-tower">
-                    <rect x="740" y="50" width="60" height="250" fill="#3a3a3a"/>
-                    <rect x="750" y="60" width="40" height="230" fill="#444"/>
-                    <rect x="760" y="70" width="20" height="210" fill="#333"/>
-                    <path d="M740 100 H650" stroke="#555" stroke-width="8"/>
-                    <path d="M740 180 H650" stroke="#555" stroke-width="8"/>
-                    <circle cx="770" cy="80" r="5" fill="red" class="tower-light"/>
-                    <circle cx="770" cy="150" r="5" fill="red" class="tower-light"/>
-                    <circle cx="770" cy="220" r="5" fill="red" class="tower-light"/>
-                </g>
-                
-                <!-- Launch Mount Details -->
-                <g class="launch-mount">
-                    <rect x="450" y="280" width="100" height="20" fill="#444"/>
-                    <rect x="460" y="270"
-                    <rect x="460" y="270" width="80" height="10" fill="#555"/>
-                    <!-- Flame Deflector -->
-                    <path d="M400 350 Q500 400 600 350" fill="#333" stroke="#444" stroke-width="2"/>
-                    <!-- Support Structures -->
-                    <path d="M460 300 L440 350 M540 300 L560 350" stroke="#444" stroke-width="4"/>
+
+                <!-- Tower Lights -->
+                <g class="tower-lights">
+                    <circle cx="690" cy="150" r="3" fill="red" class="warning-light"/>
+                    <circle cx="690" cy="250" r="3" fill="red" class="warning-light"/>
+                    <circle cx="690" cy="350" r="3" fill="red" class="warning-light"/>
                 </g>
             </g>
 
-            <!-- Water Deluge System -->
-            <g class="water-deluge">
-                <rect x="420" y="320" width="160" height="5" fill="#666"/>
-                <circle cx="440" cy="325" r="2" fill="#888" class="nozzle"/>
-                <circle cx="480" cy="325" r="2" fill="#888" class="nozzle"/>
-                <circle cx="520" cy="325" r="2" fill="#888" class="nozzle"/>
-                <circle cx="560" cy="325" r="2" fill="#888" class="nozzle"/>
+            <!-- Lightning Protection System -->
+            <g class="lightning-protection">
+                <path d="M200 50 L500 200 L800 50" fill="none" stroke="#666" stroke-width="2"/>
+                <circle cx="200" cy="50" r="5" fill="#777"/>
+                <circle cx="800" cy="50" r="5" fill="#777"/>
+            </g>
+
+            <!-- Support Equipment -->
+            <g class="ground-equipment">
+                <!-- Propellant Lines -->
+                <path d="M300 500 Q400 480 400 400" fill="none" stroke="#666" stroke-width="4"/>
+                <path d="M700 500 Q600 480 600 400" fill="none" stroke="#666" stroke-width="4"/>
+                
+                <!-- Connection Points -->
+                <circle cx="400" cy="400" r="6" fill="#555"/>
+                <circle cx="600" cy="400" r="6" fill="#555"/>
+            </g>
+
+            <!-- Hold-down Clamps -->
+            <g class="hold-down-clamps">
+                <path d="M450 450 L470 500 L480 500 L460 450 Z" fill="#444"/>
+                <path d="M550 450 L530 500 L520 500 L540 450 Z" fill="#444"/>
+            </g>
+
+            <!-- Sound Suppression Water System -->
+            <g class="sound-suppression">
+                <rect x="350" y="490" width="300" height="10" fill="#333"/>
+                <circle cx="380" cy="495" r="2" fill="#444"/>
+                <circle cx="460" cy="495" r="2" fill="#444"/>
+                <circle cx="540" cy="495" r="2" fill="#444"/>
+                <circle cx="620" cy="495" r="2" fill="#444"/>
             </g>
         </svg>
     </div>

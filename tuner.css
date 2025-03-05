@@ -135,64 +135,42 @@ body {
 /* Tuner Display */
 .tuner-display {
     position: relative;
-    height: 150px;
+    height: 150px;  /* Reduced from 300px */
     background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
     border-radius: 1rem;
     margin-bottom: 1.5rem;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.center-line {
+/* Create the arch track */
+.tuner-display::before {
+    content: '';
     position: absolute;
+    top: 20px;  /* Adjusted from 40px */
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 1px;
-    height: 80%;
-    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-50%);
+    width: 200px;  /* Adjusted from 260px */
+    height: 100px;  /* Adjusted from 130px */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px 100px 0 0;
+    border-bottom: none;
 }
 
-/* Add fine-tuning guides */
-.tuning-guides {
-    position: absolute;
-    width: 100%;
-    height: 80%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.tuning-guide {
-    position: absolute;
-    width: 1px;
-    height: 40%;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.tuning-guide.left-10 { left: calc(50% - 20px); }
-.tuning-guide.right-10 { left: calc(50% + 20px); }
-
-/* Updated Marker and Cents Indicator Styles */
+/* Update marker styles */
 .marker {
     position: absolute;
+    top: 20px;  /* Align with arch */
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     width: 2px;
     height: 70%;
     background: var(--primary);
-    transition: all 0.15s ease-out;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    transition: transform 0.15s ease-out;
+    transform-origin: bottom center;
     will-change: transform;
-    border-radius: 1px;
-    z-index: 10;
 }
 
 .marker::before,
@@ -203,7 +181,6 @@ body {
     height: 2px;
     background: var(--primary);
     left: -2px;
-    transition: all 0.15s ease-out;
 }
 
 .marker::before { top: 0; }
@@ -344,9 +321,6 @@ body {
     background: linear-gradient(90deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
     color: transparent;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Booster Array */
@@ -376,19 +350,14 @@ body {
 
 /* Booster Design */
 .string-item {
-    aspect-ratio: 1;
-    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 50%;
     position: relative;
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    padding: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.2),
-        inset 0 2px 5px rgba(255, 255, 255, 0.1);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .string-item::before {
@@ -419,13 +388,23 @@ body {
 }
 
 .string-item.in-tune {
-    background: linear-gradient(145deg, var(--success) 0%, #16a34a 100%);
-    transform: translateY(-2px);
-    box-shadow: 
-        0 8px 24px rgba(34, 197, 94, 0.3),
-        0 0 0 2px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
 }
 
+.string-indicator {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: #1e293b;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.string-item.in-tune .string-indicator {
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
 
 /* Launch Platform */
 .launch-platform {
@@ -851,6 +830,55 @@ body {
 }
 
 /* Enhanced Flame Effects */
+.flame {
+    transform-origin: center bottom;
+    filter: blur(1px);
+    opacity: 0.9;
+    mix-blend-mode: screen;
+    animation: flameFlicker 0.3s infinite alternate;
+}
+
+.flame.main-flame {
+    filter: blur(2px) brightness(1.5);
+}
+
+.flame.outer-flame {
+    opacity: 0.7;
+    filter: blur(3px);
+}
+
+.shock-diamond {
+    transform-origin: center center;
+    filter: blur(0.5px) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+    animation: diamondPulse 0.5s infinite alternate;
+}
+
+@keyframes flameFlicker {
+    0% { 
+        transform: scaleY(1) scaleX(1);
+        opacity: 0.9;
+        filter: blur(2px) brightness(1.5);
+    }
+    100% { 
+        transform: scaleY(1.1) scaleX(0.9);
+        opacity: 1;
+        filter: blur(1px) brightness(1.8);
+    }
+}
+
+@keyframes diamondPulse {
+    0% { 
+        opacity: 0.7; 
+        transform: scale(0.8);
+        filter: blur(0.5px) brightness(1.2);
+    }
+    100% { 
+        opacity: 1;
+        transform: scale(1.2);
+        filter: blur(1px) brightness(1.5);
+    }
+}
+
 .enhanced-flame-group-1,
 .enhanced-flame-group-2,
 .enhanced-flame-group-3,
@@ -860,65 +888,18 @@ body {
     transform-origin: center center;
     pointer-events: none;
     position: absolute;
+    z-index: 100;
 }
 
-.flame {
-    transform-origin: center bottom;
-    filter: blur(1px);
-    opacity: 0.9;
-    mix-blend-mode: screen;
-    animation: flameFlicker 0.3s infinite alternate;
-}
-
-.outer-flame {
-    opacity: 0.7;
-    filter: blur(2px);
-    animation: flameFlicker 0.4s infinite alternate;
-}
-
-/* Update animation for more realistic movement */
-@keyframes flameFlicker {
-    0% { 
-        transform: scaleY(1) scaleX(1);
-        opacity: 0.9;
-    }
-    100% { 
-        transform: scaleY(1.1) scaleX(0.9);
-        opacity: 1;
-    }
-}
-
-.shock-diamond {
-    transform-origin: center center;
-    filter: blur(0.5px) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-    animation: diamondPulse 0.5s infinite alternate;
-}
-
-@keyframes diamondPulse {
-    0% { opacity: 0.7; transform: scale(0.8); }
-    100% { opacity: 1; transform: scale(1.2); }
-}
-
-/* Make sure engine section is visible */
 .engine-section {
     position: relative;
     z-index: 2;
+    filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.3));
 }
 
-/* Ensure flames are visible over other elements */
-.enhanced-flame-group-1,
-.enhanced-flame-group-2,
-.enhanced-flame-group-3,
-.enhanced-flame-group-4,
-.enhanced-flame-group-5,
-.enhanced-flame-group-6 {
-    z-index: 3;
-}
-
-/* Booster status enhancement */
-.string-item.in-tune .booster {
-    transition: fill 0.3s ease;
-    fill: #ffd700;
+/* Add glow effect to active boosters */
+.string-item.in-tune {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
 }
 
 /* Add these styles for the launch animation */
@@ -989,4 +970,267 @@ body {
     max-width: 500px;
     margin: 0 auto;
     position: relative;
+}
+
+/* Modern Engine Effects */
+.engine-section {
+    filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.3));
+}
+
+.nozzle {
+    transition: all 0.3s ease;
+}
+
+.launching .nozzle {
+    filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
+}
+
+/* Cooling System Animation */
+.cooling-line {
+    opacity: 0.6;
+    animation: coolantFlow 2s infinite linear;
+}
+
+@keyframes coolantFlow {
+    0% { stroke-dasharray: 5 3; stroke-dashoffset: 0; }
+    100% { stroke-dasharray: 5 3; stroke-dashoffset: 8; }
+}
+
+/* Thrust Vectoring Animation */
+.gimbal {
+    transition: transform 0.3s ease;
+}
+
+.launching .gimbal {
+    animation: gimbalAdjust 0.5s infinite alternate;
+}
+
+@keyframes gimbalAdjust {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(1px, 1px); }
+}
+
+/* Heat Shield Glow */
+.heat-shield {
+    transition: all 0.3s ease;
+}
+
+.launching .heat-shield {
+    filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.5));
+    animation: heatShieldGlow 1s infinite alternate;
+}
+
+@keyframes heatShieldGlow {
+    0% { filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.5)); }
+    100% { filter: drop-shadow(0 0 30px rgba(255, 69, 0, 0.8)); }
+}
+
+/* Enhanced Flame Effects */
+.nozzle::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(ellipse at top, 
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 165, 0, 0.5) 50%,
+        rgba(255, 69, 0, 0.3) 100%);
+    filter: blur(5px);
+    transform-origin: top;
+    animation: flameFlicker 0.1s infinite alternate;
+}
+
+@keyframes flameFlicker {
+    0% { transform: scaleY(1); opacity: 0.8; }
+    100% { transform: scaleY(1.2); opacity: 1; }
+}
+
+/* Plasma Effects */
+.launching .nozzle::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at center,
+        rgba(135, 206, 235, 0.8) 0%,
+        rgba(0, 191, 255, 0.5) 50%,
+        rgba(30, 144, 255, 0) 100%);
+    filter: blur(3px);
+    animation: plasmaFlow 0.5s infinite alternate;
+}
+
+@keyframes plasmaFlow {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Service Tower Animations */
+.service-tower .warning-light {
+    animation: warning-blink 1s infinite alternate;
+}
+
+.launching .service-arm {
+    transition: transform 2s ease;
+}
+
+.launching .service-arm:nth-child(1) {
+    transform: translate(650px, 350px) rotate(-30deg);
+}
+
+.launching .service-arm:nth-child(2) {
+    transform: translate(650px, 250px) rotate(-25deg);
+}
+
+/* Water Deluge Effects */
+.launching .deluge-system .nozzle {
+    animation: water-spray 0.5s infinite;
+}
+
+@keyframes water-spray {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.3; }
+}
+
+/* Hold-down Clamp Animation */
+.launching .hold-down-clamps path {
+    animation: release-clamps 1s forwards;
+}
+
+@keyframes release-clamps {
+    to {
+        transform: translateX(30px) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Lightning Protection System */
+.lightning-protection path {
+    stroke-dasharray: 5;
+    animation: dash 20s linear infinite;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: 100;
+    }
+}
+
+/* Flame Trench Effects */
+.launching .flame-trench {
+    filter: brightness(1.5);
+    animation: flame-glow 0.3s infinite alternate;
+}
+
+@keyframes flame-glow {
+    from { filter: brightness(1.5); }
+    to { filter: brightness(2); }
+}
+
+/* Sound Suppression System */
+.launching .sound-suppression circle {
+    animation: water-pulse 0.3s infinite alternate;
+}
+
+@keyframes water-pulse {
+    from { r: 2; }
+    to { r: 3; opacity: 0.7; }
+}
+
+/* Service Tower Lattice Animation */
+.launching .tower-lattice path {
+    animation: structure-vibration 0.1s infinite alternate;
+}
+
+@keyframes structure-vibration {
+    from { transform: translateX(0); }
+    to { transform: translateX(1px); }
+}
+
+/* Ground Equipment Animation */
+.launching .ground-equipment path {
+    animation: disconnect 1s forwards;
+    transform-origin: top;
+}
+
+@keyframes disconnect {
+    to {
+        transform: translateX(20px) rotate(15deg);
+        opacity: 0;
+    }
+}
+
+/* Enhanced marker states */
+.marker.warning-range {
+    background: var(--warning);
+    transition: all 0.2s ease-out;
+}
+
+.marker.warning-range::before,
+.marker.warning-range::after {
+    background: var(--warning);
+    transition: all 0.2s ease-out;
+}
+
+.marker.warning-range .cents-indicator {
+    border-color: var(--warning);
+    color: var(--warning);
+    transition: all 0.2s ease-out;
+}
+
+.marker.close-range {
+    background: var(--success);
+    transition: all 0.2s ease-out;
+}
+
+.marker.close-range::before,
+.marker.close-range::after {
+    background: var(--success);
+    transition: all 0.2s ease-out;
+}
+
+.marker.close-range .cents-indicator {
+    border-color: var(--success);
+    color: var(--success);
+    transition: all 0.2s ease-out;
+}
+
+/* Enhanced in-tune animation */
+.marker.in-tune .cents-indicator {
+    border-color: var(--success);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    animation: pulseInTune 1s ease-in-out infinite;
+    transition: all 0.3s ease-out;
+}
+
+@keyframes pulseInTune {
+    0% { 
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    }
+}
+
+/* Smoother transitions for all marker states */
+.marker {
+    transition: transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.cents-indicator {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+#stringGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 1rem;
 }
