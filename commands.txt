@@ -1,0 +1,60 @@
+Compare changes with previous code - git diff >> diff.txt
+
+
+# Define the file types to find
+$fileTypes = @("*.js", "*.css")
+
+# Define directories and files to exclude
+$excludeDirs = @("docs", "node_modules", "dist", "build", "bun-cache", ".git", "coverage", ".next", "components")
+$excludeFiles = @("package-lock.json", "pnpm-lock.yaml")
+
+# Get all files with the specified extensions
+$files = Get-ChildItem -Path . -Include $fileTypes -Recurse -File
+
+# Filter out excluded directories and files
+$filteredFiles = $files | Where-Object {
+    $exclude = $false
+    
+    # Check if file is in excluded directory
+    foreach ($dir in $excludeDirs) {
+        if ($_.FullName -like "*\$dir\*") {
+            $exclude = $true
+            break
+        }
+    }
+    
+    # Check if file matches excluded file patterns
+    if (-not $exclude) {
+        foreach ($file in $excludeFiles) {
+            if ($_.Name -like $file -or $_.Name -like "*lock*") {
+                $exclude = $true
+                break
+            }
+        }
+    }
+    
+    # Process gitignore if available
+    if (-not $exclude -and (Test-Path .gitignore)) {
+        $gitignorePatterns = Get-Content .gitignore | Where-Object { $_ -notmatch "^#" -and $_ -ne "" }
+        foreach ($pattern in $gitignorePatterns) {
+            if ($_.FullName -like "*\$pattern\*") {
+                $exclude = $true
+                break
+            }
+        }
+    }
+    
+    return -not $exclude
+}
+
+# Clear file if it exists
+if (Test-Path src.txt) {
+    Clear-Content src.txt
+}
+
+# Process each file
+foreach ($file in $filteredFiles) {
+    Add-Content -Path src.txt -Value "Path: $($file.FullName)"
+    Get-Content $file.FullName | Add-Content -Path src.txt
+    Add-Content -Path src.txt -Value ""
+}
