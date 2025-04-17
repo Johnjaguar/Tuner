@@ -51,16 +51,25 @@
                 <div class="tuner-display">
                     <div class="frequency-grid"></div>
                     <div class="center-line"></div>
+                    <div class="target-zone"></div>
+                    
+                    <!-- Tuning Guides -->
+                    <div class="tuning-guides">
+                        <div class="tuning-guide left-10"></div>
+                        <div class="tuning-guide right-10"></div>
+                    </div>
                     
                     <!-- Target Crosshair (Fixed Position) -->
                     <div class="target-crosshair">
                         <div class="target-circle"></div>
+                        <!-- Inner circle will be added by JavaScript -->
                     </div>
                     
                     <!-- Marker Crosshair (Will Move Based on Frequency) -->
                     <div id="marker" class="marker-crosshair">
                         <div class="marker-circle"></div>
                         <div class="cents-indicator">0¢</div>
+                        <!-- Direction indicators will be added by JavaScript -->
                     </div>
                     
                     <div class="signal-monitor">

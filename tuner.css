@@ -136,126 +136,324 @@ body {
     align-items: center;
 }
 
-/* Tuner Display */
+/* Enhanced Tuner Display */
 .tuner-display {
     position: relative;
-    height: 120px;
-    background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+    height: 130px;
+    background: linear-gradient(180deg, var(--space-dark) 0%, var(--space-darker) 100%);
     border-radius: 1rem;
     margin-bottom: 0.75rem;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Remove the arch track */
-.tuner-display::before {
-    display: none;
+/* Add subtle grid lines for better visualization */
+.frequency-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-image: 
+        linear-gradient(to right, rgba(96, 165, 250, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(96, 165, 250, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: 1;
 }
 
-/* Update marker styles */
-.marker-crosshair {
+/* Enhanced center line */
+.center-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(96, 165, 250, 0.3);
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.2);
+    z-index: 2;
+}
+
+/* Add tuning guides - marks at +/- 10 cents */
+.tuning-guides {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.tuning-guide {
+    position: absolute;
+    top: 25%;
+    bottom: 25%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tuning-guide.left-10 {
+    left: calc(50% - 20px);
+}
+
+.tuning-guide.right-10 {
+    left: calc(50% + 20px);
+}
+
+/* Add target zone indicator */
+.target-zone {
+    position: absolute;
+    top: 30%;
+    bottom: 30%;
+    left: calc(50% - 10px);
+    right: calc(50% - 10px);
+    background: rgba(34, 197, 94, 0.06);
+    border-radius: 5px;
+    z-index: 2;
+}
+
+/* Enhanced Target Crosshair (Stationary) */
+.target-crosshair {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 40px;
     height: 40px;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.target-crosshair::before,
+.target-crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--primary);
+    opacity: 1; /* Increased from 0.7 */
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.7); /* Added glow effect */
+}
+
+/* Horizontal line - thicker and more visible */
+.target-crosshair::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px; /* Increased from 1px */
+    transform: translateY(-50%);
+}
+
+/* Vertical line - thicker and more visible */
+.target-crosshair::after {
+    top: 0;
+    left: 50%;
+    width: 2px; /* Increased from 1px */
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+/* Target Circle - more prominent */
+.target-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px; /* Increased from 20px */
+    height: 24px; /* Increased from 20px */
+    border: 2px solid var(--primary); /* Increased from 1px */
+    border-radius: 50%;
+    opacity: 1; /* Increased from 0.7 */
+    box-shadow: inset 0 0 5px rgba(96, 165, 250, 0.5); /* Added inner glow */
+}
+
+/* Moving Marker (User's Current Frequency) - Enhanced */
+.marker-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px; /* Increased from 40px */
+    height: 44px; /* Increased from 40px */
     z-index: 15;
     pointer-events: none;
     transform: translate(-50%, -50%);
     transition: transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-.marker::before,
-.marker::after {
+.marker-crosshair::before,
+.marker-crosshair::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 2px;
-    background: var(--primary);
-    left: -2px;
+    background: var(--warning);
+    box-shadow: 0 0 6px var(--warning); /* Added glow effect */
+    transition: all 0.3s ease; /* Changed from just background */
 }
 
-.marker::before { top: 0; }
-.marker::after { bottom: 0; }
+/* Horizontal line - thicker, more visible */
+.marker-crosshair::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px; /* Increased from 1px */
+    transform: translateY(-50%);
+}
 
-/* Enhanced Cents Indicator */
+/* Vertical line - thicker, more visible */
+.marker-crosshair::after {
+    top: 0;
+    left: 50%;
+    width: 2px; /* Increased from 1px */
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+/* Marker Circle - redesigned */
+.marker-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; /* Increased from 16px */
+    height: 20px; /* Increased from 16px */
+    border: 2px solid var(--warning); /* Increased from 1px */
+    border-radius: 50%;
+    transition: all 0.3s ease; /* Changed from just border-color */
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.6); /* Added glow effect */
+}
+
+/* Cents Indicator - enhanced styling */
 .cents-indicator {
     position: absolute;
+    top: -30px;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
+    transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.9);
-    border: 2px solid var(--primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid var(--warning);
+    border-radius: 6px; /* Increased from 4px */
+    padding: 3px 8px; /* Increased from 2px 6px */
     font-family: 'Orbitron', sans-serif;
-    font-weight: 600;
-    font-size: 0.75rem;
+    font-weight: 700; /* Increased from 600 */
+    font-size: 0.8rem; /* Increased from 0.75rem */
     color: var(--text-primary);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
-    backdrop-filter: blur(4px);
-    z-index: 20;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); /* Added glow */
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Added text glow */
 }
 
-.marker.close-range .cents-indicator {
-    width: 42px;
-    height: 42px;
-    font-size: 0.875rem;
-    background: rgba(15, 23, 42, 0.95);
-    border-width: 3px;
-}
-
-.marker.in-tune {
-    background: var(--success);
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
-}
-
-.marker.in-tune::before,
-.marker.in-tune::after {
-    background: var(--success);
-}
-
-.marker.in-tune .cents-indicator {
-    border-color: var(--success);
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-    background: rgba(15, 23, 42, 0.98);
-    width: 48px;
-    height: 48px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--success);
-    animation: pulseInTune 1s ease-in-out infinite;
-}
-
-@keyframes pulseInTune {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.05); }
-    100% { transform: translate(-50%, -50%) scale(1); }
-}
-
-/* Fine-tuning visualization */
-.marker.close-range {
-    transition: all 0.1s ease;
-}
-
-/* When within 25 cents, start zooming the visualization */
-.tuner-display.fine-tune {
+/* Direction Indicators */
+.direction-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    opacity: 0.9;
     transition: all 0.3s ease;
 }
 
-.tuner-display.fine-tune .marker {
-    transition: all 0.1s ease;
+.direction-indicator.left {
+    left: -10px;
+    border-width: 6px 8px 6px 0;
+    border-color: transparent var(--warning) transparent transparent;
 }
 
-/* Signal Monitor */
+.direction-indicator.right {
+    right: -10px;
+    border-width: 6px 0 6px 8px;
+    border-color: transparent transparent transparent var(--warning);
+}
+
+/* State Classes for the Marker */
+/* When close to target (close-range) */
+.marker-crosshair.close-range::before,
+.marker-crosshair.close-range::after {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+}
+
+.marker-crosshair.close-range .marker-circle {
+    border-color: var(--success);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+.marker-crosshair.close-range .cents-indicator {
+    border-color: var(--success);
+    color: var(--success);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+/* When far from target (warning-range) */
+.marker-crosshair.warning-range::before,
+.marker-crosshair.warning-range::after {
+    background: var(--warning);
+    box-shadow: 0 0 8px var(--warning);
+}
+
+.marker-crosshair.warning-range .marker-circle {
+    border-color: var(--warning);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.7);
+}
+
+.marker-crosshair.warning-range .cents-indicator {
+    border-color: var(--warning);
+    color: var(--warning);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+
+/* When in tune (perfectly aligned) */
+.marker-crosshair.in-tune::before,
+.marker-crosshair.in-tune::after {
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    animation: pulseInTune 1s infinite alternate;
+}
+
+.marker-crosshair.in-tune .marker-circle {
+    border-color: var(--success);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+    animation: pulseCircle 1s infinite alternate;
+}
+
+.marker-crosshair.in-tune .cents-indicator {
+    border-color: var(--success);
+    color: var(--success);
+    font-weight: 800;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
+    animation: pulseCents 1s infinite alternate;
+}
+
+@keyframes pulseInTune {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulseCircle {
+    0% { 
+        transform: translate(-50%, -50%) scale(1); 
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1.1); 
+        box-shadow: 0 0 20px rgba(34, 197, 94, 1);
+    }
+}
+
+@keyframes pulseCents {
+    0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
+    }
+    100% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+    }
+}
+
+/* Enhanced signal monitor */
 .signal-monitor {
     position: absolute;
     bottom: 1rem;
@@ -263,27 +461,45 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+    z-index: 20;
 }
 
 .signal-bar {
     width: 100px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+    height: 6px; /* Increased from 4px */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px; /* Increased from 2px */
     overflow: hidden;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .signal-level {
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, var(--primary), var(--accent));
-    transition: width 0.3s ease; /* Increase from 0.2s to 0.3s */
-    will-change: transform; /* Add hardware acceleration */
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+}
+
+/* Enhanced Volume Level - add color transitions based on level */
+.signal-level.weak {
+    background: linear-gradient(90deg, #64748b, #94a3b8);
+    box-shadow: 0 0 5px rgba(100, 116, 139, 0.5);
+}
+
+.signal-level.medium {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+}
+
+.signal-level.strong {
+    background: linear-gradient(90deg, var(--warning), #fb923c);
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+.signal-level.peak {
+    background: linear-gradient(90deg, #ef4444, #b91c1c);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
 }
 
 /* Telemetry Grid */

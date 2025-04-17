@@ -698,7 +698,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateTunerDisplays(frequency) {
         const IN_TUNE_THRESHOLD = 7;
         const WARNING_THRESHOLD = 15;
-        const MAX_OFFSET = 120; // Increased horizontal range
+        const MAX_OFFSET = 120; // Horizontal range for the marker
         
         if (!frequency) {
             if (Math.abs(currentMarkerOffset) > 0.5) {
@@ -707,6 +707,11 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 currentMarkerOffset = 0;
                 elements.marker.style.transform = 'translate(-50%, -50%)';
+                
+                const centsIndicator = elements.marker.querySelector('.cents-indicator');
+                if (centsIndicator) {
+                    centsIndicator.textContent = '0¢';
+                }
             }
             return;
         }
@@ -740,24 +745,37 @@ document.addEventListener("DOMContentLoaded", () => {
             stringThreshold = 10;
         }
 
-        // Update marker position - Simpler horizontal-only movement
-        const targetOffset = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, minCents * 2));
-        const smoothingFactor = Math.abs(targetOffset - currentMarkerOffset) > 10 ? 0.3 : 0.08;
+        // FIX: Update marker position with 1-cent precision
+        // Calculate the exact cents off without any rounding or doubling 
+        const rawCents = minCents;
+        
+        // Convert cents to visual position (1 cent = 1 pixel for better precision)
+        const targetOffset = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, rawCents));
+        
+        // Use a smaller smoothing factor for more precise movement
+        const smoothingFactor = 0.15;
         currentMarkerOffset += (targetOffset - currentMarkerOffset) * smoothingFactor;
         
         // Apply translation maintaining vertical centering
         elements.marker.style.transform = `translate(calc(-50% + ${currentMarkerOffset}px), -50%)`;
 
-        // Update cents indicator
+        // Update cents indicator with exact value, not rounded to even numbers
         const centsIndicator = elements.marker.querySelector('.cents-indicator');
         if (centsIndicator) {
-            centsIndicator.textContent = `${Math.round(minCents)}¢`;
+            // If extremely close to center (within 0.5px), show as perfectly in tune
+            if (Math.abs(currentMarkerOffset) < 0.5) {
+                centsIndicator.textContent = '0¢';
+            } else {
+                // Display the exact cents value with no rounding to even numbers
+                // Round to the nearest integer
+                centsIndicator.textContent = `${Math.round(rawCents)}¢`;
+            }
         }
 
         // Update marker classes
         elements.marker.classList.remove('close-range', 'warning-range', 'in-tune');
         
-        if (Math.abs(minCents) < stringThreshold) {
+        if (Math.abs(rawCents) < stringThreshold) {
             elements.marker.classList.add('in-tune');
             
             if (!tuningTimers[closestNote]) {
@@ -770,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tuningTimers[closestNote].completed = true;
                 activateBooster(closestNote);
             }
-        } else if (Math.abs(minCents) < WARNING_THRESHOLD) {
+        } else if (Math.abs(rawCents) < WARNING_THRESHOLD) {
             elements.marker.classList.add('close-range');
             if (tuningTimers[closestNote] && !tuningTimers[closestNote].completed) {
                 tuningTimers[closestNote] = null;
@@ -783,12 +801,84 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Update status message
-        if (Math.abs(minCents) < stringThreshold) {
+        if (Math.abs(rawCents) < stringThreshold) {
             updateStatus(`IN TUNE: ${closestNote}`);
-        } else if (minCents < 0) {
-            updateStatus(`TUNE UP: ${closestNote} (${Math.abs(Math.round(minCents))}¢ FLAT)`);
+        } else if (rawCents < 0) {
+            updateStatus(`TUNE UP: ${closestNote} (${Math.abs(Math.round(rawCents))}¢ FLAT)`);
         } else {
-            updateStatus(`TUNE DOWN: ${closestNote} (${Math.round(minCents)}¢ SHARP)`);
+            updateStatus(`TUNE DOWN: ${closestNote} (${Math.round(rawCents)}¢ SHARP)`);
+        }
+    }
+
+    // Function to add direction indicators to the marker crosshair
+    function enhanceCrosshairs() {
+        const marker = document.getElementById('marker');
+        if (!marker) return;
+        
+        // Create left direction indicator
+        const leftIndicator = document.createElement('div');
+        leftIndicator.className = 'direction-indicator left';
+        marker.appendChild(leftIndicator);
+        
+        // Create right direction indicator
+        const rightIndicator = document.createElement('div');
+        rightIndicator.className = 'direction-indicator right';
+        marker.appendChild(rightIndicator);
+        
+        // Enhance target crosshair with additional visual elements
+        const targetCrosshair = document.querySelector('.target-crosshair');
+        if (targetCrosshair) {
+            // Add inner circle for better visibility
+            const innerCircle = document.createElement('div');
+            innerCircle.className = 'target-inner-circle';
+            innerCircle.style.position = 'absolute';
+            innerCircle.style.top = '50%';
+            innerCircle.style.left = '50%';
+            innerCircle.style.transform = 'translate(-50%, -50%)';
+            innerCircle.style.width = '8px';
+            innerCircle.style.height = '8px';
+            innerCircle.style.borderRadius = '50%';
+            innerCircle.style.backgroundColor = 'var(--primary)';
+            innerCircle.style.opacity = '0.6';
+            targetCrosshair.appendChild(innerCircle);
+        }
+    }
+
+    // Modify the updateTunerDisplays function to handle direction indicators
+    const originalUpdateTunerDisplays = updateTunerDisplays;
+    function enhancedUpdateTunerDisplays(frequency) {
+        // Call the original function first
+        originalUpdateTunerDisplays(frequency);
+        
+        // Update direction indicators
+        const marker = document.getElementById('marker');
+        if (!marker) return;
+        
+        const leftIndicator = marker.querySelector('.direction-indicator.left');
+        const rightIndicator = marker.querySelector('.direction-indicator.right');
+        const centsIndicator = marker.querySelector('.cents-indicator');
+        
+        if (frequency && centsIndicator && leftIndicator && rightIndicator) {
+            const centsText = centsIndicator.textContent;
+            const centsValue = parseInt(centsText);
+            
+            // Show appropriate direction indicator based on cents value
+            leftIndicator.style.opacity = centsValue > 5 ? '0.9' : '0';
+            rightIndicator.style.opacity = centsValue < -5 ? '0.9' : '0';
+            
+            // Update signal level class based on volume
+            const volumeLevel = document.getElementById('volumeLevel');
+            if (volumeLevel) {
+                const volume = parseFloat(volumeLevel.style.width);
+                volumeLevel.className = 'signal-level ' + 
+                    (volume < 20 ? 'weak' : 
+                     volume < 50 ? 'medium' : 
+                     volume < 80 ? 'strong' : 'peak');
+            }
+        } else if (leftIndicator && rightIndicator) {
+            // Hide both indicators when no frequency is detected
+            leftIndicator.style.opacity = '0';
+            rightIndicator.style.opacity = '0';
         }
     }
 
@@ -816,6 +906,13 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Tuning not defined:', currentTuning);
         }
     });
+
+    // Call the enhance function after a short delay
+    setTimeout(() => {
+        enhanceCrosshairs();
+        // Replace the original updateTunerDisplays with the enhanced version
+        window.updateTunerDisplays = enhancedUpdateTunerDisplays;
+    }, 100);
 
     // Add this to your existing DOMContentLoaded event listener, after elements initialization
     const style = document.createElement('style');
