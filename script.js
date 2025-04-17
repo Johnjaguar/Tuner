@@ -151,23 +151,46 @@ document.addEventListener("DOMContentLoaded", () => {
     let missionStartTime = null;
     const smoothingWindow = [];
     let tuningTimers = {};
-    let currentMarkerAngle = 0;
+    let currentMarkerOffset = 0;
 
     function initializeStringGrid() {
         // Clear existing grid
         elements.stringGrid.innerHTML = '';
         
-        // Add string items with proper classes and structure
-        Object.entries(stringFrequencies).forEach(([note, freq], index) => {
+        // Add column headers
+        const leftHeader = document.createElement('div');
+        leftHeader.className = 'string-column-header left';
+        leftHeader.textContent = 'LOW STRINGS';
+        elements.stringGrid.appendChild(leftHeader);
+        
+        const rightHeader = document.createElement('div');
+        rightHeader.className = 'string-column-header right';
+        rightHeader.textContent = 'HIGH STRINGS';
+        elements.stringGrid.appendChild(rightHeader);
+        
+        // Create string items in order
+        const stringOrder = [
+            { note: 'E2', position: 'e2' },
+            { note: 'G3', position: 'g3' },
+            { note: 'A2', position: 'a2' },
+            { note: 'B3', position: 'b3' },
+            { note: 'D3', position: 'd3' },
+            { note: 'E4', position: 'e4' }
+        ];
+        
+        // Add all string items in the specified order
+        stringOrder.forEach(({note}) => {
+            const freq = stringFrequencies[note];
+            if (!freq) return; // Skip if not found in current tuning
+            
             const stringItem = document.createElement('div');
             stringItem.className = 'string-item';
             stringItem.id = `string-${note}`;
             
-            // Create inner structure with proper styling
             stringItem.innerHTML = `
-                <div class="string-indicator"></div>
-                <div class="string-note">${note}</div>
-                <div class="string-freq">${freq.toFixed(1)} Hz</div>
+                <div class="string-indicator">
+                    <div class="string-note">${note}</div>
+                </div>
             `;
             
             elements.stringGrid.appendChild(stringItem);
@@ -299,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.currentNote.textContent = '-';
         elements.frequency.textContent = '-';
         elements.status.textContent = 'AWAITING ACTIVATION';
-        elements.marker.style.transform = 'rotate(0deg)';
+        elements.marker.style.transform = 'translateX(0)';
         elements.volumeLevel.style.width = '0%';
         
         // Reset all tuning timers
@@ -356,40 +379,120 @@ document.addEventListener("DOMContentLoaded", () => {
     async function startTuner() {
         try {
             console.log('Starting tuner...');
-            const constraints = {
-                audio: {
-                    echoCancellation: false,
-                    autoGainControl: false,
-                    noiseSuppression: false,
-                    latency: 0
-                }
-            };
-
-            console.log('Getting user media...');
+            
+            // Check if microphone is available before proceeding
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const hasAudioInput = devices.some(device => device.kind === 'audioinput');
+            
+            // Make sure any previous audio context is properly closed
+            if (audioContext) {
+                await audioContext.close();
+            }
+            
+            // Create new audio context
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Wait for audio context to initialize
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            
             analyser = audioContext.createAnalyser();
             analyser.fftSize = CONSTANTS.FFT_SIZE;
-
-            console.log('Requesting microphone access...');
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            console.log('Microphone access granted');
-
-            source = audioContext.createMediaStreamSource(stream);
-            source.connect(analyser);
-
+            
+            if (!hasAudioInput) {
+                console.log('No audio input devices found, switching to demo mode');
+                activateDemoMode();
+                return;
+            }
+            
+            try {
+                console.log('Requesting microphone access...');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false,
+                        latency: 0
+                    }
+                });
+                
+                console.log('Microphone access granted');
+                source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                
+            } catch (micError) {
+                console.error('Microphone access error:', micError);
+                
+                if (micError.name === 'NotFoundError') {
+                    elements.status.textContent = 'NO MICROPHONE DETECTED - DEMO MODE ACTIVE';
+                } else if (micError.name === 'NotAllowedError') {
+                    elements.status.textContent = 'MICROPHONE ACCESS DENIED - DEMO MODE ACTIVE';
+                } else {
+                    elements.status.textContent = 'MICROPHONE ERROR - DEMO MODE ACTIVE';
+                }
+                
+                activateDemoMode();
+                return;
+            }
+            
             console.log('Audio processing chain set up');
-            console.log('Audio context state:', audioContext.state);
-            console.log('Sample rate:', audioContext.sampleRate);
-            console.log('FFT size:', analyser.fftSize);
-
             updateButtonState(true);
             isRunning = true;
             updatePitch();
-
+            
         } catch (error) {
             console.error('Error starting tuner:', error);
             handleError(error);
         }
+    }
+
+    function activateDemoMode() {
+        // Create oscillator as fallback source for testing
+        console.log('Activating demo mode');
+        
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 0.5; // Set volume to 50%
+        
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine';
+        
+        // Start with E2 (82.41 Hz)
+        oscillator.frequency.setValueAtTime(82.41, audioContext.currentTime);
+        
+        // Create a sequence of notes to demonstrate the tuner
+        const demoNotes = [
+            { freq: 82.41, duration: 3000 },  // E2
+            { freq: 110.00, duration: 3000 }, // A2
+            { freq: 146.83, duration: 3000 }, // D3
+            { freq: 196.00, duration: 3000 }, // G3
+            { freq: 246.94, duration: 3000 }, // B3
+            { freq: 329.63, duration: 3000 }  // E4
+        ];
+        
+        let noteIndex = 0;
+        
+        // Function to cycle through demo notes
+        function playNextNote() {
+            if (!isRunning) return;
+            
+            const note = demoNotes[noteIndex];
+            oscillator.frequency.setValueAtTime(note.freq, audioContext.currentTime);
+            
+            noteIndex = (noteIndex + 1) % demoNotes.length;
+            setTimeout(playNextNote, note.duration);
+        }
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(analyser);
+        oscillator.start();
+        
+        // Start the demo sequence
+        playNextNote();
+        
+        updateButtonState(true);
+        isRunning = true;
+        updatePitch();
     }
 
     function debugAudioChain() {
@@ -593,18 +696,17 @@ document.addEventListener("DOMContentLoaded", () => {
      * @param {number} frequency - Detected frequency in Hz
      */
     function updateTunerDisplays(frequency) {
-        const IN_TUNE_THRESHOLD = 7;  // Standard threshold
+        const IN_TUNE_THRESHOLD = 7;
         const WARNING_THRESHOLD = 15;
-        const MAX_ROTATION_ANGLE = 35;
-        const MARKER_SMOOTHING = 0.12;
+        const MAX_OFFSET = 120; // Increased horizontal range
         
         if (!frequency) {
-            if (Math.abs(currentMarkerAngle) > 0.5) {
-                currentMarkerAngle *= 0.95;
-                elements.marker.style.transform = `rotate(${currentMarkerAngle}deg)`;
+            if (Math.abs(currentMarkerOffset) > 0.5) {
+                currentMarkerOffset *= 0.95;
+                elements.marker.style.transform = `translate(calc(-50% + ${currentMarkerOffset}px), -50%)`;
             } else {
-                currentMarkerAngle = 0;
-                elements.marker.style.transform = 'rotate(0deg)';
+                currentMarkerOffset = 0;
+                elements.marker.style.transform = 'translate(-50%, -50%)';
             }
             return;
         }
@@ -625,30 +727,26 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Special handling for low E and A strings
-        if ((closestNote === 'E2' || closestNote === 'A2') && Math.abs(minCents) < 15) {
-            console.log(`Forcing in-tune state for ${closestNote}`);
-            minCents = 0; // Force to exactly in tune
-        }
-
         elements.currentNote.textContent = closestNote;
 
         // String-specific thresholds
         let stringThreshold = IN_TUNE_THRESHOLD;
-        let tuningDuration = 2000; // Default 2 seconds
+        let tuningDuration = 2000;
 
         if (closestNote === 'E2' || closestNote === 'A2') {
-            stringThreshold = 15; // More forgiving for low strings
-            tuningDuration = 1000; // Only 1 second for low strings
+            stringThreshold = 15;
+            tuningDuration = 1000;
         } else if (closestNote === 'G3') {
-            stringThreshold = 10; // More forgiving for G string
+            stringThreshold = 10;
         }
 
-        // Update marker position
-        const targetAngle = Math.max(-MAX_ROTATION_ANGLE, Math.min(MAX_ROTATION_ANGLE, minCents));
-        const smoothingFactor = Math.abs(targetAngle - currentMarkerAngle) > 10 ? 0.3 : 0.08;
-        currentMarkerAngle += (targetAngle - currentMarkerAngle) * smoothingFactor;
-        elements.marker.style.transform = `rotate(${currentMarkerAngle}deg)`;
+        // Update marker position - Simpler horizontal-only movement
+        const targetOffset = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, minCents * 2));
+        const smoothingFactor = Math.abs(targetOffset - currentMarkerOffset) > 10 ? 0.3 : 0.08;
+        currentMarkerOffset += (targetOffset - currentMarkerOffset) * smoothingFactor;
+        
+        // Apply translation maintaining vertical centering
+        elements.marker.style.transform = `translate(calc(-50% + ${currentMarkerOffset}px), -50%)`;
 
         // Update cents indicator
         const centsIndicator = elements.marker.querySelector('.cents-indicator');
@@ -656,16 +754,13 @@ document.addEventListener("DOMContentLoaded", () => {
             centsIndicator.textContent = `${Math.round(minCents)}¢`;
         }
 
-        // Update marker classes and handle tuning state
+        // Update marker classes
         elements.marker.classList.remove('close-range', 'warning-range', 'in-tune');
         
-        const forceInTune = (closestNote === 'E2' || closestNote === 'A2') && Math.abs(minCents) < 15;
-
-        if (Math.abs(minCents) < stringThreshold || forceInTune) {
+        if (Math.abs(minCents) < stringThreshold) {
             elements.marker.classList.add('in-tune');
             
             if (!tuningTimers[closestNote]) {
-                console.log(`Started timer for ${closestNote}`);
                 tuningTimers[closestNote] = {
                     startTime: Date.now(),
                     completed: false
@@ -673,7 +768,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (!tuningTimers[closestNote].completed && 
                        Date.now() - tuningTimers[closestNote].startTime >= tuningDuration) {
                 tuningTimers[closestNote].completed = true;
-                console.log(`${closestNote} is in tune! Activating booster.`);
                 activateBooster(closestNote);
             }
         } else if (Math.abs(minCents) < WARNING_THRESHOLD) {
@@ -689,7 +783,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Update status message
-        if (Math.abs(minCents) < stringThreshold || forceInTune) {
+        if (Math.abs(minCents) < stringThreshold) {
             updateStatus(`IN TUNE: ${closestNote}`);
         } else if (minCents < 0) {
             updateStatus(`TUNE UP: ${closestNote} (${Math.abs(Math.round(minCents))}¢ FLAT)`);
@@ -712,7 +806,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Reset all visual states
             if (elements.marker) {
-                elements.marker.style.transform = 'rotate(0deg)';
+                elements.marker.style.transform = 'translateX(0)';
                 elements.marker.classList.remove('close-range', 'warning-range', 'in-tune');
             }
             

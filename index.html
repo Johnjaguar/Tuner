@@ -51,9 +51,18 @@
                 <div class="tuner-display">
                     <div class="frequency-grid"></div>
                     <div class="center-line"></div>
-                    <div id="marker" class="marker">
+                    
+                    <!-- Target Crosshair (Fixed Position) -->
+                    <div class="target-crosshair">
+                        <div class="target-circle"></div>
+                    </div>
+                    
+                    <!-- Marker Crosshair (Will Move Based on Frequency) -->
+                    <div id="marker" class="marker-crosshair">
+                        <div class="marker-circle"></div>
                         <div class="cents-indicator">0¢</div>
                     </div>
+                    
                     <div class="signal-monitor">
                         <i data-lucide="activity"></i>
                         <div class="signal-bar">
@@ -81,12 +90,7 @@
                         SONIC BOOSTER ARRAY STATUS
                     </h2>
                     <div class="booster-grid" id="stringGrid">
-                        <!-- Boosters will be dynamically added here -->
-                    </div>
-                    <!-- Launch Effects Container -->
-                    <div class="launch-effects">
-                        <div class="particle-effects"></div>
-                        <div class="smoke-effects"></div>
+                        <!-- String items will be dynamically added here by JavaScript -->
                     </div>
                 </div>
 
