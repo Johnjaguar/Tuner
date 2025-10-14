@@ -118,7 +118,7 @@ body {
 /* Main Display Panel */
 .main-display {
     width: 100%;
-    max-width: 500px;
+    max-width: 400px;
     transform: translateZ(0);
     backface-visibility: hidden;
     will-change: transform;
@@ -136,19 +136,55 @@ body {
     align-items: center;
 }
 
+/* Status Bar - positioned to avoid marker overlap */
+.status-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem; /* Add spacing between status and tuner display */
+    position: relative;
+    z-index: 0; /* Keep it below the tuner display */
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+.status-light {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 10px var(--success);
+    animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-light {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* Enhanced Tuner Display */
 .tuner-display {
     position: relative;
-    height: 130px;
+    height: 83px;
     background: linear-gradient(180deg, var(--space-dark) 0%, var(--space-darker) 100%);
     border-radius: 1rem;
     margin-bottom: 0.75rem;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to allow marker zoom to be fully visible */
     border: 1px solid rgba(96, 165, 250, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1; /* Ensure tuner display can overflow above other elements */
 }
 
 /* Add subtle grid lines for better visualization */
@@ -280,7 +316,9 @@ body {
     z-index: 15;
     pointer-events: none;
     transform: translate(-50%, -50%);
-    transition: transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: width 0.25s cubic-bezier(0.4, 0.0, 0.2, 1),
+                height 0.25s cubic-bezier(0.4, 0.0, 0.2, 1),
+                transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 .marker-crosshair::before,
@@ -320,14 +358,14 @@ body {
     height: 20px; /* Increased from 16px */
     border: 2px solid var(--warning); /* Increased from 1px */
     border-radius: 50%;
-    transition: all 0.3s ease; /* Changed from just border-color */
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1); /* Smooth transition for zoom */
     box-shadow: 0 0 8px rgba(251, 191, 36, 0.6); /* Added glow effect */
 }
 
 /* Cents Indicator - enhanced styling */
 .cents-indicator {
     position: absolute;
-    top: -30px;
+    top: -22px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.9);
@@ -424,6 +462,40 @@ body {
     font-weight: 800;
     box-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
     animation: pulseCents 1s infinite alternate;
+}
+
+/* Progressive Zoom Feature - Marker scales up as it gets closer to target */
+/* Slight zoom when within 20 cents */
+.marker-crosshair.zoom-20 {
+    width: 52px;  /* 1.18x from base 44px */
+    height: 52px;
+}
+
+.marker-crosshair.zoom-20 .marker-circle {
+    width: 24px;  /* 1.2x from base 20px */
+    height: 24px;
+}
+
+/* Medium zoom when within 15 cents */
+.marker-crosshair.zoom-15 {
+    width: 62px;  /* 1.41x from base 44px */
+    height: 62px;
+}
+
+.marker-crosshair.zoom-15 .marker-circle {
+    width: 28px;  /* 1.4x from base 20px */
+    height: 28px;
+}
+
+/* Full zoom when within 10 cents */
+.marker-crosshair.zoom-10 {
+    width: 70px;  /* 1.59x from base 44px */
+    height: 70px;
+}
+
+.marker-crosshair.zoom-10 .marker-circle {
+    width: 32px;  /* 1.6x from base 20px */
+    height: 32px;
 }
 
 @keyframes pulseInTune {
@@ -539,7 +611,7 @@ body {
 .booster-array {
     background: rgba(15, 23, 42, 0.8);
     backdrop-filter: blur(10px);
-    padding: 0.75rem;
+    padding: 0.6rem;
     border-radius: 1rem;
     border: 1px solid rgba(96, 165, 250, 0.2);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -549,15 +621,15 @@ body {
 .booster-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     font-family: 'Orbitron', sans-serif;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1px solid rgba(96, 165, 250, 0.3);
-    padding-bottom: 0.5rem;
-    font-size: 0.9rem;
+    padding-bottom: 0.4rem;
+    font-size: 0.72rem;
 }
 
 /* Modern string grid layout */
@@ -570,8 +642,8 @@ body {
         "e2 g3"
         "a2 b3"
         "d3 e4";
-    gap: 0.75rem;
-    padding: 0.5rem 0;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
 }
 
 /* Style the column headers */
@@ -606,13 +678,13 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
     position: relative;
 }
 
 .string-indicator {
-    width: 45px;
-    height: 45px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: rgba(30, 41, 59, 0.8);
     border: 2px solid rgba(148, 163, 184, 0.2);
@@ -653,7 +725,7 @@ body {
     transform: translate(-50%, -50%);
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     color: var(--text-primary);
     z-index: 2;
 }
@@ -718,7 +790,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 80px;
+    height: 72px;
     background: linear-gradient(0deg, #1a1a1a 0%, transparent 100%);
     z-index: 1;
 }
@@ -761,6 +833,19 @@ body {
 }
 
 /* Responsive Design */
+/* MacBook Pro and medium screens - prevent rocket/launcher overlap */
+@media (min-width: 641px) and (max-width: 1440px) {
+    .guitar-rocket,
+    .launch-complex {
+        width: 180px; /* Reduced from 300px */
+        left: 20%; /* Moved slightly more to the left */
+    }
+    
+    .launch-platform {
+        height: 54px; /* Reduced from 80px */
+    }
+}
+
 @media (max-width: 640px) {
     .container {
         padding: 1rem;
@@ -772,6 +857,18 @@ body {
 
     .brand-title {
         font-size: 2rem;
+    }
+    
+    /* Make rocket and launcher smaller on mobile */
+    .guitar-rocket,
+    .launch-complex {
+        width: 135px; /* Reduced from 300px */
+        left: 15%; /* Moved more to the left for small screens */
+        bottom: 150px; /* Adjusted vertical position */
+    }
+    
+    .launch-platform {
+        height: 45px; /* Reduced from 80px */
     }
 }
 
@@ -830,7 +927,7 @@ body {
     left: 25%;
     bottom: 200px;
     transform: translateX(-50%);
-    width: 300px;
+    width: 270px;
     z-index: 2;
     transition: all 8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -1282,7 +1379,7 @@ body {
 /* Add wrapper styles */
 .mission-wrapper {
     width: 100%;
-    max-width: 800px;
+    max-width: 640px;
     margin: 0 auto;
     padding: 0 1rem;
     position: relative;
@@ -1662,7 +1759,7 @@ body {
 /* Cents Indicator - repositioned */
 .marker-crosshair .cents-indicator {
     position: absolute;
-    top: -30px;
+    top: -22px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.9);
