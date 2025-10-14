@@ -121,6 +121,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 "A3": 220.00,
                 "D4": 293.66
             }
+        },
+        memories: {
+            name: "Memories",
+            frequencies: {
+                "Eb2": 77.78,
+                "G2": 98.00,
+                "D3": 146.83,
+                "G3": 196.00,
+                "Bb3": 233.08,
+                "D4": 293.66
+            }
         }
     };
 
