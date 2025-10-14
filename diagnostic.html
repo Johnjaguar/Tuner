@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guitar Tuner Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 640px;  /* Reduced from 800px by 20% */
+            margin: 0 auto;
+        }
+        .test-panel {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #60a5fa;
+        }
+        button {
+            background: #60a5fa;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #3b82f6;
+        }
+        button.demo {
+            background: #22c55e;
+        }
+        button.demo:hover {
+            background: #16a34a;
+        }
+        #audioStatus, #deviceInfo, #pitchInfo {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        #note {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #frequency {
+            font-size: 1.5rem;
+            color: #94a3b8;
+        }
+        #signal-meter {
+            width: 100%;
+            height: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        #signal-level {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #60a5fa, #818cf8);
+            transition: width 0.1s ease;
+        }
+        .tuning-display {
+            position: relative;
+            height: 160px;  /* Reduced from 200px by 20% */
+            width: 72%;     /* Reduced from 90% by 20% */
+            max-width: 480px; /* Reduced from 600px by 20% */
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 10px;
+            margin: 30px auto; /* Center horizontally with more vertical margin */
+            overflow: hidden;
+            border: 2px solid rgba(96, 165, 250, 0.3); /* Added subtle border */
+        }
+        .marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;  /* Slightly thicker marker */
+            height: 80%;  /* Increased height to fill more of container */
+            background: #fbbf24;
+            transition: left 0.15s ease-out;
+        }
+        .marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid #fbbf24;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .center-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .cents {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        #log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .log-info { color: #94a3b8; }
+        .log-success { color: #22c55e; }
+        .log-error { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guitar Tuner Diagnostic</h1>
+        
+        <div class="test-panel">
+            <h2>Audio System Check</h2>
+            <button id="checkBrowser">Check Browser Compatibility</button>
+            <button id="checkMicrophone">Check Microphone</button>
+            <div id="audioStatus">Run checks to see status...</div>
+            <div id="deviceInfo" style="display: none;"></div>
+        </div>
+        
+        <div class="test-panel">
+            <h2>Tuner Test</h2>
+            <button id="startMicrophone">Start with Microphone</button>
+            <button id="startDemo" class="demo">Start Demo Mode</button>
+            <button id="stopAudio">Stop</button>
+            
+            <div id="signal-meter">
+                <div id="signal-level"></div>
+            </div>
+            
+            <div id="note">-</div>
+            <div id="frequency">- Hz</div>
+            
+            <div class="tuning-display">
+                <div class="center-line"></div>
+                <div id="marker" class="marker">
+                    <div class="cents">0¢</div>
+                </div>
+            </div>
+            
+            <div id="pitchInfo">No pitch detected</div>
+        </div>
+        
+        <div id="log"><div class="log-entry log-info">Ready to start diagnostic tests...</div></div>
+    </div>
+    
+    <script>
+        // Guitar frequencies for standard tuning
+        const notes = {
+            "E2": 82.41,
+            "A2": 110.00,
+            "D3": 146.83,
+            "G3": 196.00,
+            "B3": 246.94,
+            "E4": 329.63
+        };
+        
+        // DOM elements
+        const elements = {
+            checkBrowser: document.getElementById('checkBrowser'),
+            checkMicrophone: document.getElementById('checkMicrophone'),
+            startMicrophone: document.getElementById('startMicrophone'),
+            startDemo: document.getElementById('startDemo'),
+            stopAudio: document.getElementById('stopAudio'),
+            audioStatus: document.getElementById('audioStatus'),
+            deviceInfo: document.getElementById('deviceInfo'),
+            signalLevel: document.getElementById('signal-level'),
+            note: document.getElementById('note'),
+            frequency: document.getElementById('frequency'),
+            marker: document.getElementById('marker'),
+            pitchInfo: document.getElementById('pitchInfo'),
+            log: document.getElementById('log')
+        };
+        
+        // State variables
+        let audioContext = null;
+        let analyser = null;
+        let source = null;
+        let isRunning = false;
+        let demoOscillator = null;
+        let smoothingBuffer = [];
+        
+        // Logging
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            elements.log.appendChild(entry);
+            elements.log.scrollTop = elements.log.scrollHeight;
+            console.log(`[${type}]`, message);
+        }
+        
+        // Check browser compatibility
+        function checkBrowserCompatibility() {
+            elements.audioStatus.innerHTML = '';
+            addLog('Checking browser compatibility...', 'info');
+            
+            const checks = [
+                { name: 'AudioContext', passed: !!(window.AudioContext || window.webkitAudioContext) },
+                { name: 'getUserMedia', passed: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
+                { name: 'AudioWorklet (optional)', passed: !!(window.AudioContext && AudioContext.prototype.audioWorklet) }
+            ];
+            
+            let allCriticalPassed = checks.filter(c => c.name !== 'AudioWorklet (optional)').every(c => c.passed);
+            
+            checks.forEach(check => {
+                const status = check.passed ? '✅ Supported' : '❌ Not supported';
+                elements.audioStatus.innerHTML += `${check.name}: ${status}<br>`;
+                addLog(`${check.name}: ${status}`, check.passed ? 'success' : 'error');
+            });
+            
+            if (allCriticalPassed) {
+                elements.audioStatus.innerHTML += '<br>✅ Your browser should support the guitar tuner!';
+                addLog('Browser compatibility check passed', 'success');
+            } else {
+                elements.audioStatus.innerHTML += '<br>❌ Your browser may not support all features needed for the guitar tuner.';
+                addLog('Browser compatibility check failed', 'error');
+            }
+        }
+        
+        // Check microphone access
+        async function checkMicrophone() {
+            try {
+                elements.audioStatus.innerHTML = 'Checking microphone access...';
+                addLog('Checking microphone access...', 'info');
+                
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                
+                elements.deviceInfo.style.display = 'block';
+                elements.deviceInfo.innerHTML = `Found ${audioInputs.length} audio input devices:<br>`;
+                
+                audioInputs.forEach((device, index) => {
+                    elements.deviceInfo.innerHTML += `${index + 1}. ${device.label || 'Unnamed device'}<br>`;
+                    addLog(`Found device: ${device.label || 'Unnamed device'}`, 'info');
+                });
+                
+                if (audioInputs.length === 0) {
+                    elements.audioStatus.innerHTML = '❌ No microphones found. Please connect a microphone.';
+                    addLog('No microphones found', 'error');
+                    return;
+                }
+                
+                // Try to access microphone
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false,
+                        latency: 0,
+                        channelCount: 1,
+                        sampleRate: 44100
+                    }
+                });
+                const audioTracks = stream.getAudioTracks();
+                
+                if (audioTracks.length > 0) {
+                    const track = audioTracks[0];
+                    const settings = track.getSettings();
+                    elements.audioStatus.innerHTML = `
+                        ✅ Microphone access successful!<br>
+                        Active: ${track.label}<br>
+                        Sample Rate: ${settings.sampleRate} Hz<br>
+                        Channel Count: ${settings.channelCount}<br>
+                        Enabled: ${track.enabled}<br>
+                        Muted: ${track.muted}
+                    `;
+                    addLog(`Microphone access successful: ${track.label}`, 'success');
+                    addLog(`Audio settings: ${JSON.stringify(settings, null, 2)}`, 'info');
+                    
+                    // Clean up the test stream
+                    stream.getTracks().forEach(track => track.stop());
+                } else {
+                    elements.audioStatus.innerHTML = '❌ Microphone access failed. No audio tracks available.';
+                    addLog('Microphone access failed: No audio tracks', 'error');
+                }
+            } catch (error) {
+                elements.audioStatus.innerHTML = `❌ Microphone access error: ${error.message}`;
+                addLog(`Microphone access error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Start microphone input
+        async function startMicrophoneInput() {
+            try {
+                if (isRunning) {
+                    stopAudio();
+                }
+                
+                addLog('Starting microphone input...', 'info');
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 44100,
+                    latencyHint: 'interactive'
+                });
+                
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 4096;  // Increased for better frequency resolution
+                analyser.smoothingTimeConstant = 0.8;
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false,
+                        latency: 0,
+                        channelCount: 1,
+                        sampleRate: 44100
+                    }
+                });
+                
+                source = audioContext.createMediaStreamSource(stream);
+                
+                // Add gain node for better signal control
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 20.0;  // Increased gain for line input
+                
+                // Add compressor to help with dynamic range
+                const compressor = audioContext.createDynamicsCompressor();
+                compressor.threshold.value = -50;
+                compressor.knee.value = 40;
+                compressor.ratio.value = 12;
+                compressor.attack.value = 0;
+                compressor.release.value = 0.25;
+                
+                // Connect the audio chain
+                source.connect(gainNode);
+                gainNode.connect(compressor);
+                compressor.connect(analyser);
+                
+                isRunning = true;
+                updatePitch();
+                
+                addLog('Microphone input started successfully', 'success');
+                addLog(`Audio chain: Source -> Gain(${gainNode.gain.value}) -> Compressor -> Analyser`, 'info');
+            } catch (error) {
+                addLog(`Error starting microphone: ${error.message}`, 'error');
+                elements.pitchInfo.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Start demo mode with oscillator
+        function startDemoMode() {
+            try {
+                if (isRunning) {
+                    stopAudio();
+                }
+                
+                addLog('Starting demo mode...', 'info');
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 44100,
+                    latencyHint: 'interactive'
+                });
+                
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 8192;  // Increased for better frequency resolution
+                analyser.smoothingTimeConstant = 0.85;  // Increased smoothing
+                
+                demoOscillator = audioContext.createOscillator();
+                demoOscillator.type = 'sine';
+                demoOscillator.frequency.setValueAtTime(notes.E2, audioContext.currentTime);
+                
+                // Add a small amount of noise to make the signal more realistic
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.value = 0.001;  // Very low noise level
+                
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+                const noiseData = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseBuffer.length; i++) {
+                    noiseData[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = noiseBuffer;
+                noise.loop = true;
+                
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0.3;  // Reduced gain for cleaner signal
+                
+                // Connect the audio chain
+                demoOscillator.connect(gainNode);
+                noise.connect(noiseGain);
+                noiseGain.connect(gainNode);
+                gainNode.connect(analyser);
+                
+                demoOscillator.start();
+                noise.start();
+                
+                // Cycle through notes
+                const noteNames = Object.keys(notes);
+                let currentNoteIndex = 0;
+                
+                function cycleNotes() {
+                    if (!isRunning) return;
+                    
+                    currentNoteIndex = (currentNoteIndex + 1) % noteNames.length;
+                    const noteName = noteNames[currentNoteIndex];
+                    const frequency = notes[noteName];
+                    
+                    // Add slight detuning occasionally
+                    const shouldDetune = Math.random() > 0.7;  // Reduced detuning frequency
+                    const detuneAmount = shouldDetune ? (Math.random() * 5 - 2.5) : 0;  // Reduced detuning range
+                    const detuneRatio = Math.pow(2, detuneAmount / 1200);
+                    
+                    demoOscillator.frequency.setValueAtTime(
+                        frequency * detuneRatio, 
+                        audioContext.currentTime
+                    );
+                    
+                    addLog(`Demo: Playing ${noteName} (${frequency.toFixed(2)} Hz)${shouldDetune ? ` detuned by ${detuneAmount.toFixed(1)} cents` : ''}`, 'info');
+                    
+                    // Schedule next note
+                    setTimeout(cycleNotes, 4000);  // Increased duration for better stability
+                }
+                
+                setTimeout(cycleNotes, 4000);
+                
+                isRunning = true;
+                updatePitch();
+                
+                addLog('Demo mode started successfully', 'success');
+            } catch (error) {
+                addLog(`Error starting demo: ${error.message}`, 'error');
+                elements.pitchInfo.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Stop audio processing
+        function stopAudio() {
+            if (source) {
+                source.disconnect();
+                source = null;
+            }
+            
+            if (demoOscillator) {
+                demoOscillator.stop();
+                demoOscillator.disconnect();
+                demoOscillator = null;
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            isRunning = false;
+            elements.note.textContent = '-';
+            elements.frequency.textContent = '- Hz';
+            elements.marker.style.left = '50%';
+            elements.signalLevel.style.width = '0%';
+            elements.pitchInfo.textContent = 'Audio stopped';
+            
+            addLog('Audio processing stopped', 'info');
+        }
+        
+        // Update pitch detection
+        function updatePitch() {
+            if (!isRunning) return;
+            
+            try {
+                const buffer = new Float32Array(analyser.fftSize);
+                analyser.getFloatTimeDomainData(buffer);
+                
+                // Calculate RMS (signal level)
+                const rms = Math.sqrt(buffer.reduce((acc, val) => acc + val * val, 0) / buffer.length);
+                elements.signalLevel.style.width = `${Math.min(100, rms * 300)}%`;
+                
+                if (rms < 0.005) {
+                    elements.pitchInfo.textContent = `No signal detected (level: ${(rms * 100).toFixed(1)}%)`;
+                    requestAnimationFrame(updatePitch);
+                    return;
+                }
+                
+                // Calculate zero crossings for signal quality check
+                let zeroCrossings = 0;
+                for (let i = 1; i < buffer.length; i++) {
+                    if ((buffer[i] >= 0 && buffer[i-1] < 0) || 
+                        (buffer[i] < 0 && buffer[i-1] >= 0)) {
+                        zeroCrossings++;
+                    }
+                }
+                const crossingRate = zeroCrossings / buffer.length;
+                
+                // Log signal analysis
+                addLog(
+                    `Signal Analysis:\n` +
+                    `  RMS: ${(rms * 1000).toFixed(3)}mV\n` +
+                    `  Zero Crossings: ${zeroCrossings} (${(crossingRate * 100).toFixed(1)}%)\n` +
+                    `  Crossing Rate OK: ${crossingRate >= 0.005 && crossingRate <= 0.9}`,
+                    'info'
+                );
+                
+                // Detect pitch using autocorrelation
+                const frequency = findPitch(buffer, audioContext.sampleRate);
+                
+                if (frequency && frequency > 50 && frequency < 1000) {
+                    // Smooth the frequency
+                    smoothingBuffer.push(frequency);
+                    if (smoothingBuffer.length > 5) {
+                        smoothingBuffer.shift();
+                    }
+                    
+                    const smoothedFrequency = smoothingBuffer.reduce((a, b) => a + b, 0) / smoothingBuffer.length;
+                    
+                    // Find closest note
+                    const closestNote = findClosestNote(smoothedFrequency);
+                    
+                    // Calculate cents difference
+                    const centsOff = 1200 * Math.log2(smoothedFrequency / closestNote.frequency);
+                    
+                    // Update UI
+                    elements.note.textContent = closestNote.note;
+                    elements.frequency.textContent = `${smoothedFrequency.toFixed(1)} Hz`;
+                    elements.marker.querySelector('.cents').textContent = `${Math.round(centsOff)}¢`;
+                    
+                    // Position marker (50% is center, convert cents to percentage)
+                    const markerPosition = 50 + (centsOff / 2); // 100 cents = 50%
+                    elements.marker.style.left = `${Math.max(10, Math.min(90, markerPosition))}%`;
+                    
+                    elements.pitchInfo.textContent = `
+                        Detected frequency: ${smoothedFrequency.toFixed(1)} Hz
+                        Raw frequency: ${frequency.toFixed(1)} Hz
+                        Closest note: ${closestNote.note} (${closestNote.frequency.toFixed(1)} Hz)
+                        Cents off: ${centsOff.toFixed(1)}
+                        Signal level: ${(rms * 100).toFixed(1)}%
+                        Zero crossings: ${zeroCrossings} (${(crossingRate * 100).toFixed(1)}%)
+                    `;
+                    
+                    // Highlight when in tune (within 10 cents)
+                    if (Math.abs(centsOff) < 10) {
+                        elements.marker.style.background = '#22c55e';
+                    } else {
+                        elements.marker.style.background = '#fbbf24';
+                    }
+                } else {
+                    elements.pitchInfo.textContent = `
+                        No clear pitch detected
+                        Signal level: ${(rms * 100).toFixed(1)}%
+                        Zero crossings: ${zeroCrossings} (${(crossingRate * 100).toFixed(1)}%)
+                        Raw frequency estimate: ${frequency ? frequency.toFixed(1) + ' Hz' : 'none'}
+                    `;
+                }
+            } catch (error) {
+                elements.pitchInfo.textContent = `Error: ${error.message}`;
+                addLog(`Pitch detection error: ${error.message}`, 'error');
+            }
+            
+            requestAnimationFrame(updatePitch);
+        }
+        
+        // Find pitch using autocorrelation
+        function findPitch(buffer, sampleRate) {
+            // Calculate autocorrelation
+            const correlations = new Float32Array(buffer.length);
+            
+            // Normalize the buffer
+            const maxAmplitude = Math.max(...buffer.map(Math.abs));
+            if (maxAmplitude > 0) {
+                for (let i = 0; i < buffer.length; i++) {
+                    buffer[i] /= maxAmplitude;
+                }
+            }
+            
+            for (let lag = 0; lag < buffer.length; lag++) {
+                let sum = 0;
+                for (let i = 0; i < buffer.length - lag; i++) {
+                    sum += buffer[i] * buffer[i + lag];
+                }
+                correlations[lag] = sum;
+            }
+            
+            // Find the first high peak after the initial drop
+            const minLag = Math.floor(sampleRate / 1000); // Minimum 1000 Hz
+            const maxLag = Math.floor(sampleRate / 50);   // Maximum 50 Hz
+            let maxCorrelation = 0;
+            let secondBestCorrelation = 0;
+            let foundPeak = false;
+            let bestLag = -1;
+            let secondBestLag = -1;
+            
+            // Find the global maximum first
+            let globalMax = 0;
+            for (let lag = minLag; lag < maxLag; lag++) {
+                if (correlations[lag] > globalMax) {
+                    globalMax = correlations[lag];
+                }
+            }
+            
+            // Use a threshold relative to the global maximum
+            const threshold = globalMax * 0.1;
+            
+            for (let lag = minLag; lag < maxLag; lag++) {
+                if (correlations[lag] > threshold) {
+                    if (correlations[lag] > maxCorrelation) {
+                        secondBestCorrelation = maxCorrelation;
+                        secondBestLag = bestLag;
+                        maxCorrelation = correlations[lag];
+                        bestLag = lag;
+                        foundPeak = true;
+                    } else if (correlations[lag] > secondBestCorrelation) {
+                        secondBestCorrelation = correlations[lag];
+                        secondBestLag = lag;
+                    }
+                }
+            }
+            
+            if (foundPeak && bestLag > 0) {
+                // Calculate confidence based on peak ratio and signal quality
+                const peakRatio = secondBestCorrelation / maxCorrelation;
+                const confidence = 1 - peakRatio;
+                
+                // Calculate zero crossing rate for signal quality
+                let zeroCrossings = 0;
+                for (let i = 1; i < buffer.length; i++) {
+                    if ((buffer[i] >= 0 && buffer[i-1] < 0) || 
+                        (buffer[i] < 0 && buffer[i-1] >= 0)) {
+                        zeroCrossings++;
+                    }
+                }
+                const crossingRate = zeroCrossings / buffer.length;
+                
+                // Adjust confidence based on signal quality
+                const signalQuality = Math.min(1, crossingRate / 0.1);  // Normalize to 0.1 as ideal
+                const adjustedConfidence = confidence * signalQuality;
+                
+                // Only return frequency if confidence is high enough
+                if (adjustedConfidence > 0.3) {  // Lowered threshold for demo mode
+                    addLog(
+                        `Pitch Detection:\n` +
+                        `  Raw Frequency: ${(sampleRate / bestLag).toFixed(1)}Hz\n` +
+                        `  Confidence: ${(adjustedConfidence * 100).toFixed(1)}%\n` +
+                        `  Peak Ratio: ${peakRatio.toFixed(3)}\n` +
+                        `  Signal Quality: ${(signalQuality * 100).toFixed(1)}%`,
+                        'info'
+                    );
+                    
+                    return sampleRate / bestLag;
+                } else {
+                    addLog(`Pitch detection confidence too low: ${(adjustedConfidence * 100).toFixed(1)}%`, 'info');
+                }
+            }
+            
+            return null;
+        }
+        
+        // Find closest note to frequency
+        function findClosestNote(frequency) {
+            let closestNote = '';
+            let closestFrequency = 0;
+            let minDifference = Infinity;
+            
+            Object.entries(notes).forEach(([note, noteFreq]) => {
+                const difference = Math.abs(frequency - noteFreq);
+                if (difference < minDifference) {
+                    minDifference = difference;
+                    closestNote = note;
+                    closestFrequency = noteFreq;
+                }
+            });
+            
+            return { note: closestNote, frequency: closestFrequency };
+        }
+        
+        // Event listeners
+        elements.checkBrowser.addEventListener('click', checkBrowserCompatibility);
+        elements.checkMicrophone.addEventListener('click', checkMicrophone);
+        elements.startMicrophone.addEventListener('click', startMicrophoneInput);
+        elements.startDemo.addEventListener('click', startDemoMode);
+        elements.stopAudio.addEventListener('click', stopAudio);
+        
+        // Run browser check on load
+        window.addEventListener('load', () => {
+            addLog('Guitar Tuner Diagnostic loaded', 'info');
+            checkBrowserCompatibility();
+        });
+    </script>
+</body>
+</html> 

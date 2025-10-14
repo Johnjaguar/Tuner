@@ -846,7 +846,7 @@ body {
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .container {
         padding: 1rem;
     }
@@ -859,16 +859,38 @@ body {
         font-size: 2rem;
     }
     
-    /* Make rocket and launcher smaller on mobile */
+    /* Hide rocket and launcher on mobile and tablet to prevent overlap */
     .guitar-rocket,
-    .launch-complex {
-        width: 135px; /* Reduced from 300px */
-        left: 15%; /* Moved more to the left for small screens */
-        bottom: 150px; /* Adjusted vertical position */
+    .launch-complex,
+    .launch-platform {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
     }
     
-    .launch-platform {
-        height: 45px; /* Reduced from 80px */
+    /* Hide all child elements too */
+    .guitar-rocket *,
+    .launch-complex *,
+    .launch-platform * {
+        display: none !important;
+    }
+    
+    /* Ensure tuning interface has full width on mobile and tablet */
+    .mission-wrapper {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+    
+    /* Make tuner display more prominent on mobile and tablet */
+    .tuner-display {
+        width: 100%;
+        margin-bottom: 1rem;
     }
 }
 
@@ -1390,6 +1412,7 @@ body {
     align-items: center;
 }
 
+
 /* Modern Engine Effects */
 .engine-section {
     filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.3));
@@ -1815,4 +1838,20 @@ body {
 @keyframes pulseInTune {
     0% { opacity: 0.7; }
     100% { opacity: 1; }
+}
+
+/* Force hide rocket on mobile and tablet - maximum priority */
+@media (max-width: 768px) {
+    .guitar-rocket,
+    .launch-complex,
+    .launch-platform {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+    }
 }
