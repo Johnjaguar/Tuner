@@ -749,11 +749,12 @@ document.addEventListener("DOMContentLoaded", () => {
         let stringThreshold = IN_TUNE_THRESHOLD;
         let tuningDuration = 2000;
 
-        if (closestNote === 'E2' || closestNote === 'A2') {
+        if (closestNote === 'E2' || closestNote === 'A2' || closestNote === 'D3' || closestNote === 'D4' || closestNote === 'D2') {
             stringThreshold = 15;
             tuningDuration = 1000;
-        } else if (closestNote === 'G3') {
-            stringThreshold = 10;
+        } else if (closestNote === 'G3' || closestNote === 'G2') {
+            stringThreshold = 12;
+            tuningDuration = 1000;
         }
 
         // FIX: Update marker position with 1-cent precision
